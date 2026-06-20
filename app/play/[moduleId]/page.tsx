@@ -2,7 +2,7 @@
 
 'use client';
 
-import { use, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTeam } from '@/lib/hooks/useTeam';
@@ -11,8 +11,8 @@ import { getModule } from '@/lib/game/questions';
 import { QuestionRunner } from '@/components/game/QuestionRunner';
 import { QRPrivacyFlow } from '@/components/game/QRPrivacyFlow';
 
-export default function ModulePlayPage({ params }: { params: Promise<{ moduleId: string }> }) {
-  const { moduleId } = use(params);
+export default function ModulePlayPage({ params }: { params: { moduleId: string } }) {
+  const { moduleId } = params;
   const { team, loading } = useTeam();
   const router = useRouter();
   const gameModule = getModule(moduleId);

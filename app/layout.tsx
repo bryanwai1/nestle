@@ -1,30 +1,20 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
+// app/layout.tsx
 
-const inter = Inter({ subsets: ["latin"], display: "swap", variable: "--font-inter" });
+import type { Metadata } from 'next';
+import { LanguageProvider } from '@/lib/i18n/LanguageContext';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Nestlé SHE Day 2025",
-  description: "Safety · Health · Environment — Interactive challenge platform for Nestlé Sales Region staff",
-  icons: { icon: "/favicon.ico" },
-  openGraph: {
-    title: "Nestlé SHE Day 2025",
-    description: "Compete, learn and earn Game Cards in the Nestlé SHE Day challenge.",
-    type: "website",
-  },
-};
-
-export const viewport: Viewport = {
-  themeColor: "#1B3A6B",
-  width: "device-width",
-  initialScale: 1,
+  title: '2026 Nestlé Sales Region SHE Day',
+  description: 'Safety, Health & Environment Day team challenge',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className="min-h-screen bg-gray-50 font-sans antialiased">{children}</body>
+    <html lang="en">
+      <body className="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+        <LanguageProvider>{children}</LanguageProvider>
+      </body>
     </html>
   );
 }

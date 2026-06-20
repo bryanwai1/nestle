@@ -1,15 +1,29 @@
-// ─────────────────────────────────────────────────────────────
-// Nestlé SHE Day — Supabase Database Types
-// Run `npx supabase gen types typescript` to regenerate from live DB
-// ─────────────────────────────────────────────────────────────
+// types/database.ts
+// Hand-aligned to supabase/migrations/0001_init.sql. If you have the Supabase
+// CLI available, prefer regenerating this with:
+//   npx supabase gen types typescript --project-id <ref> > types/database.ts
+// and then re-merge the JSDoc comments back in — this file is written to be
+// a drop-in match for that command's shape so the swap is painless.
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[];
+export type ResponseType =
+  | 'multiple_choice'
+  | 'video_identify'
+  | 'video_avoid'
+  | 'media_upload'
+  | 'hazard_canvas'
+  | 'drag_sequence'
+  | 'drag_matrix'
+  | 'visual_sort'
+  | 'subjective_select'
+  | 'categorized_dropzone'
+  | 'math_input'
+  | 'budget_canvas'
+  | 'exact_sequence'
+  | 'classification_matrix';
+
+export type SessionGroup = 'morning' | 'afternoon';
+export type ModuleProgressStatus = 'not_started' | 'in_progress' | 'completed';
+export type MentalHealthBracket = 'low' | 'moderate' | 'high' | 'very_high';
 
 export interface Database {
   public: {
@@ -17,139 +31,164 @@ export interface Database {
       teams: {
         Row: {
           id: string;
-          name: string;
-          color: string;
-          initials: string;
-          created_at: string;
+          team_number: number;
+          member_1_name: string;
+          member_2_name: string;
+          member_3_name: string;
+          session_group: SessionGroup;
+          current_total_score: number;
+          registration_time: string;
+          updated_at: string;
         };
-        Insert: {
-          id?: string;
-          name: string;
-          color: string;
-          initials: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          color?: string;
-          initials?: string;
-        };
+        Insert: never; // use the create_team() RPC instead
+        Update: Partial<{
+          session_group: SessionGroup;
+        }>;
+        Relationships: [];
       };
-      scores: {
+      game_responses: {
         Row: {
           id: string;
           team_id: string;
-          module_id: number;
-          game_id: number;
-          points: number;
-          time_seconds: number;
-          game_cards: number;
+          module_id: string;
+          question_id: string;
+          response_type: ResponseType;
+          response_data: Record<string, unknown>;
+          media_url: string | null;
+          text_response: string | null;
+          is_correct: boolean | null;
+          points_awarded: number;
+          evaluated_by: string | null;
+          evaluated_at: string | null;
           created_at: string;
         };
         Insert: {
-          id?: string;
           team_id: string;
-          module_id: number;
-          game_id: number;
-          points: number;
-          time_seconds: number;
-          game_cards?: number;
-          created_at?: string;
+          module_id: string;
+          question_id: string;
+          response_type: ResponseType;
+          response_data?: Record<string, unknown>;
+          media_url?: string | null;
+          text_response?: string | null;
         };
-        Update: {
+        Update: Partial<{
+          is_correct: boolean | null;
+          points_awarded: number;
+          evaluated_by: string | null;
+          evaluated_at: string | null;
+        }>;
+        Relationships: [
+          {
+            foreignKeyName: 'game_responses_team_id_fkey';
+            columns: ['team_id'];
+            referencedRelation: 'teams';
+            referencedColumns: ['id'];
+          }
+        ];
+      };
+      session_speed_bonus: {
+        Row: {
+          id: string;
+          team_id: string;
+          module_id: string;
+          points: number;
+          awarded_by: string | null;
+          awarded_at: string;
+        };
+        Insert: {
+          team_id: string;
+          module_id: string;
           points?: number;
-          time_seconds?: number;
-          game_cards?: number;
+          awarded_by?: string | null;
         };
+        Update: never;
+        Relationships: [
+          {
+            foreignKeyName: 'session_speed_bonus_team_id_fkey';
+            columns: ['team_id'];
+            referencedRelation: 'teams';
+            referencedColumns: ['id'];
+          }
+        ];
       };
-      module_progress: {
+      team_module_progress: {
         Row: {
-          id: string;
           team_id: string;
-          module_id: number;
-          completed: boolean;
+          module_id: string;
+          status: ModuleProgressStatus;
+          started_at: string | null;
           completed_at: string | null;
-          created_at: string;
         };
         Insert: {
-          id?: string;
           team_id: string;
-          module_id: number;
-          completed?: boolean;
-          completed_at?: string | null;
-          created_at?: string;
-        };
-        Update: {
-          completed?: boolean;
+          module_id: string;
+          status?: ModuleProgressStatus;
+          started_at?: string | null;
           completed_at?: string | null;
         };
+        Update: Partial<{
+          status: ModuleProgressStatus;
+          started_at: string | null;
+          completed_at: string | null;
+        }>;
+        Relationships: [
+          {
+            foreignKeyName: 'team_module_progress_team_id_fkey';
+            columns: ['team_id'];
+            referencedRelation: 'teams';
+            referencedColumns: ['id'];
+          }
+        ];
       };
-      quiz_responses: {
+      anonymous_mental_health_metrics: {
         Row: {
           id: string;
-          team_id: string;
-          module_id: number;
-          game_id: number;
-          response_data: Json;
-          score: number;
+          batch_session_id: string;
+          raw_calculated_score: number;
+          interpretation_bracket: MentalHealthBracket;
           created_at: string;
         };
         Insert: {
-          id?: string;
-          team_id: string;
-          module_id: number;
-          game_id: number;
-          response_data: Json;
-          score: number;
-          created_at?: string;
+          batch_session_id: string;
+          raw_calculated_score: number;
+          interpretation_bracket: MentalHealthBracket;
         };
         Update: never;
-      };
-      photo_submissions: {
-        Row: {
-          id: string;
-          team_id: string;
-          module_id: number;
-          game_id: number;
-          storage_path: string;
-          caption: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          team_id: string;
-          module_id: number;
-          game_id: number;
-          storage_path: string;
-          caption: string;
-          created_at?: string;
-        };
-        Update: never;
+        Relationships: [];
       };
     };
     Views: {
-      team_leaderboard: {
+      anonymous_mental_health_aggregate: {
         Row: {
-          team_id: string;
-          team_name: string;
-          team_color: string;
-          team_initials: string;
-          total_points: number;
-          total_game_cards: number;
-          modules_completed: number;
+          batch_session_id: string;
+          submissions: number;
+          avg_score: number;
+          low_count: number;
+          moderate_count: number;
+          high_count: number;
+          very_high_count: number;
         };
+        Relationships: [];
       };
     };
-    Functions: {};
-    Enums: {};
+    Functions: {
+      create_team: {
+        Args: {
+          p_member_1: string;
+          p_member_2: string;
+          p_member_3: string;
+          p_session_group?: SessionGroup;
+        };
+        Returns: Database['public']['Tables']['teams']['Row'];
+      };
+      apply_autograde: {
+        Args: {
+          p_team_id: string;
+          p_module_id: string;
+          p_question_id: string;
+        };
+        Returns: void;
+      };
+    };
   };
 }
-
-// ── Convenience types ────────────────────────────────────────
-export type Team = Database["public"]["Tables"]["teams"]["Row"];
-export type Score = Database["public"]["Tables"]["scores"]["Row"];
-export type ModuleProgress = Database["public"]["Tables"]["module_progress"]["Row"];
-export type QuizResponse = Database["public"]["Tables"]["quiz_responses"]["Row"];
-export type PhotoSubmission = Database["public"]["Tables"]["photo_submissions"]["Row"];
-export type TeamLeaderboard = Database["public"]["Views"]["team_leaderboard"]["Row"];

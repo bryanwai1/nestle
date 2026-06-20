@@ -2,111 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Nestlé Brand CSS Variables ───────────────────────────── */
 :root {
-  --nestle-red: #E2001A;
-  --nestle-red-dark: #B5001A;
-  --nestle-red-light: #FDEAEA;
-  --nestle-blue: #1B3A6B;
-  --nestle-blue-mid: #2B5BA8;
-  --nestle-blue-light: #EBF0FA;
-  --nestle-green: #00853F;
-  --nestle-green-light: #E6F4EC;
-  --nestle-gold: #F5A623;
-  --nestle-gold-light: #FEF6E6;
-  --nestle-white: #FFFFFF;
-  --nestle-gray-50: #F5F7FA;
-  --nestle-gray-100: #EBEEF4;
-  --nestle-gray-200: #D6DCE8;
-
-  /* Shadows */
-  --shadow-card: 0 1px 3px rgba(27,58,107,0.08), 0 1px 2px rgba(27,58,107,0.04);
-  --shadow-card-hover: 0 8px 24px rgba(27,58,107,0.14);
-  --shadow-card-md: 0 4px 12px rgba(27,58,107,0.10);
+  --she-navy: #0b2545;
+  --she-red: #e4002b;
 }
 
-/* ── Base ─────────────────────────────────────────────────── */
-* { box-sizing: border-box; }
-
-html, body {
-  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  background-color: var(--nestle-gray-50);
-  color: #1A202C;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+* {
+  -webkit-tap-highlight-color: transparent;
 }
-
-/* ── Score Ticker Animation ───────────────────────────────── */
-.ticker-track {
-  display: flex;
-  width: max-content;
-  animation: ticker 40s linear infinite;
-}
-.ticker-track:hover { animation-play-state: paused; }
-
-@keyframes ticker {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-/* ── Module Card Hover ────────────────────────────────────── */
-.module-card {
-  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
-}
-.module-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-card-hover);
-}
-.module-card:active { transform: scale(0.97); }
-
-/* ── Progress Bar ─────────────────────────────────────────── */
-.progress-fill {
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ── Button Base ──────────────────────────────────────────── */
-.btn-primary {
-  background: var(--nestle-red);
-  color: white;
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  width: 100%;
-  font-family: inherit;
-}
-.btn-primary:hover  { background: var(--nestle-red-dark); transform: translateY(-1px); }
-.btn-primary:active { transform: scale(0.98); }
-
-/* ── Game Card Badge ──────────────────────────────────────── */
-.game-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  background: var(--nestle-red-light);
-  color: var(--nestle-red);
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border-radius: 6px;
-  padding: 3px 8px;
-}
-
-/* ── Fade-in animation ────────────────────────────────────── */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-in-out;
-}
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-/* ── Scrollbar ────────────────────────────────────────────── */
-::-webkit-scrollbar       { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D6DCE8; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #B8C0D0; }

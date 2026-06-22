@@ -1,11 +1,3 @@
-// lib/hooks/useRealtimeLeaderboard.ts
-//
-// Subscribes to the `teams` table over Supabase Realtime. Because
-// current_total_score is maintained entirely by the recalc_team_score()
-// trigger (see migration), this hook never has to reconcile optimistic
-// updates with server state — it just reflects whatever Postgres says,
-// which is always correct.
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -23,22 +15,25 @@ export function useRealtimeLeaderboard(limit?: number) {
     let cancelled = false;
 
     async function load() {
-      let query = supabase.from('teams').select('*').order('current_total_score', { ascending: false });
+      let query = supabase
+        .from('teams')
+        .select('*')
+        .order('current_total_score', { ascending: false });
       if (limit) query = query.limit(limit);
       const { data } = await query;
       if (!cancelled && data) setTeams(data);
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     }
     load();
 
+    // Unique channel name per mount prevents "callbacks after subscribe()"
     const channel = supabase
-      .channel('leaderboard-teams')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, () => {
-        // Any insert/update on teams (i.e. any score change) → just re-fetch
-        // and re-sort. Simpler and just as fast as patching individual rows
-        // for the team counts in this event (dozens, not thousands).
-        load();
-      })
+      .channel(`leaderboard-teams-${Math.random().toString(36).slice(2)}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'teams' },
+        () => load()
+      )
       .subscribe();
 
     return () => {

@@ -113,41 +113,42 @@ export const QUESTIONS: Record<string, GameQuestion> = {
     requiresManualReview: false, maxPoints: 10,
   },
   q3: {
-    id: 'q3', moduleId: 'module-1-safe-driving', order: 3, responseType: 'multiple_choice',
-    prompt: bi('If you feel sleepy while driving, what is the best thing to do?', 'Jika anda rasa mengantuk semasa memandu, apakah perkara terbaik untuk dilakukan?'),
-    options: [
-      bi('Increase the radio volume', 'Besarkan volum radio'),
-      bi('Open the window for fresh air', 'Buka tingkap untuk udara segar'),
-      bi('Stop and rest right away', 'Berhenti dan berehat segera'),
-      bi('Keep driving, just a bit slower', 'Teruskan memandu, hanya lebih perlahan'),
-      bi('Drink a caffeine drink and continue', 'Minum minuman berkafein dan teruskan'),
-      bi('Turn the air-conditioning to max', 'Pasang penyaman udara pada tahap maksimum'),
+    id: 'q3', moduleId: 'module-1-safe-driving', order: 3, responseType: 'visual_sort',
+    prompt: bi(
+      'If you feel sleepy while driving, which actions should you take? Select ALL correct ones.',
+      'Jika anda rasa mengantuk semasa memandu, tindakan manakah yang perlu diambil? Pilih SEMUA yang betul.'
+    ),
+    correctChoices: [
+      { id: 'c_stop_rest',    text: bi('Stop and rest right away', 'Berhenti dan berehat segera') },
+      { id: 'c_short_nap',   text: bi('Pull over to take a short nap', 'Berhenti untuk tidur sebentar') },
+      { id: 'c_stretching',  text: bi('Pull over and do some stretching', 'Berhenti untuk melakukan regangan') },
     ],
-    correctOptionIndex: 2,
+    trapChoices: [
+      { id: 't_radio',       text: bi('Increase the radio volume', 'Besarkan volum radio') },
+      { id: 't_window',      text: bi('Open the window for fresh air', 'Buka tingkap untuk udara segar') },
+      { id: 't_slow',        text: bi('Keep driving but go slower', 'Teruskan memandu, hanya lebih perlahan') },
+      { id: 't_caffeine',    text: bi('Drink a caffeine drink and continue', 'Minum minuman berkafein dan teruskan') },
+      { id: 't_aircon',      text: bi('Turn air-conditioning to max', 'Pasang penyaman udara pada tahap maksimum') },
+    ],
     requiresManualReview: false, maxPoints: 10,
   },
   q4: {
-    id: 'q4', moduleId: 'module-1-safe-driving', order: 4, responseType: 'multiple_choice',
-    prompt: bi('What is the name of the safe-following-distance rule?', 'Apakah nama peraturan jarak selamat dengan kenderaan di hadapan?'),
-    options: [
-      bi('The 2-Second Rule', 'Peraturan 2 Saat'),
-      bi('The 3-Second Rule', 'Peraturan 3 Saat'),
-      bi('The 5-Second Rule', 'Peraturan 5 Saat'),
-      bi('The Braking Distance Rule', 'Peraturan Jarak Brek'),
-      bi('The Following Gap Law', 'Undang-Undang Jarak Mengikut'),
-      bi('The Stopping Sight Rule', 'Peraturan Jarak Penglihatan Berhenti'),
-    ],
-    correctOptionIndex: 1,
-    requiresManualReview: false, maxPoints: 10,
+    id: 'q4', moduleId: 'module-1-safe-driving', order: 4, responseType: 'video_avoid',
+    prompt: bi(
+      'What is the name of the safe-following-distance rule? Type it below.',
+      'Apakah nama peraturan jarak selamat dengan kenderaan di hadapan? Taip jawapan anda.'
+    ),
+    acceptedKeywords: ['3 second rule', '3-second rule', 'three second rule', 'peraturan 3 saat', '3 saat', 'tiga saat', '3-saat', 'three-second'],
+    requiresManualReview: true, maxPoints: 10,
   },
   q5: {
-    id: 'q5', moduleId: 'module-1-safe-driving', order: 5, responseType: 'multiple_choice',
-    prompt: bi('How many seconds of gap should you keep from the car in front?', 'Berapa saat jarak yang perlu anda kekalkan daripada kereta di hadapan?'),
-    options: [
-      bi('1 second', '1 saat'), bi('2 seconds', '2 saat'), bi('3 seconds', '3 saat'),
-      bi('4 seconds', '4 saat'), bi('5 seconds', '5 saat'), bi('6 seconds', '6 saat'),
-    ],
-    correctOptionIndex: 2,
+    id: 'q5', moduleId: 'module-1-safe-driving', order: 5, responseType: 'math_input',
+    prompt: bi(
+      'How many seconds gap must you keep from the car in front? Type your answer.',
+      'Berapa saat jarak yang perlu anda kekalkan daripada kereta di hadapan? Taip jawapan anda.'
+    ),
+    formulaDisplay: bi('Safe following distance = __ seconds', 'Jarak selamat = __ saat'),
+    expectedValue: 3, tolerance: 0,
     requiresManualReview: false, maxPoints: 10,
   },
   q6: {
@@ -160,6 +161,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q7: {
     id: 'q7', moduleId: 'module-1-safe-driving', order: 7, responseType: 'video_avoid',
     prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q6-fatigue.mp4', // same clip as q6
     acceptedKeywords: ['manage fatigue', 'sufficient rest', 'rest', 'well-rested', 'well rested', 'take breaks', 'fatigue management', 'urus keletihan', 'rehat secukupnya', 'berehat', 'cukup rehat'],
     requiresManualReview: true, maxPoints: 10,
   },
@@ -173,6 +175,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q9: {
     id: 'q9', moduleId: 'module-1-safe-driving', order: 9, responseType: 'video_avoid',
     prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q8-seatbelt.mp4', // same clip as q8
     acceptedKeywords: ['fasten seatbelt', 'wear seatbelt', 'wear seat belt', 'buckle up', 'put on seatbelt', 'pakai tali pinggang keledar', 'ikat tali pinggang keledar'],
     requiresManualReview: true, maxPoints: 10,
   },
@@ -186,6 +189,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q11: {
     id: 'q11', moduleId: 'module-1-safe-driving', order: 11, responseType: 'video_avoid',
     prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q10-distracted.mp4', // same clip as q10
     acceptedKeywords: ['not using handphone', 'focus', 'pay attention', 'no handphone', 'not texting', 'put phone away', 'avoid phone', 'jangan guna telefon', 'fokus', 'beri perhatian', 'tumpukan perhatian'],
     requiresManualReview: true, maxPoints: 10,
   },
@@ -199,6 +203,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q13: {
     id: 'q13', moduleId: 'module-1-safe-driving', order: 13, responseType: 'video_avoid',
     prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q12-reckless.mp4', // same clip as q12
     acceptedKeywords: ['drive safely', 'avoid reckless driving', 'slow down', 'do not rush', "don't rush", 'memandu dengan selamat', 'elak memandu cuai', 'perlahankan'],
     requiresManualReview: true, maxPoints: 10,
   },
@@ -212,6 +217,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q15: {
     id: 'q15', moduleId: 'module-1-safe-driving', order: 15, responseType: 'video_avoid',
     prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q14-mirror.mp4', // same clip as q14
     acceptedKeywords: ['scan side mirror', 'give signal', 'give indicator', 'check mirrors', 'use indicator', 'use signal', 'periksa cermin sisi', 'beri isyarat', 'guna lampu isyarat'],
     requiresManualReview: true, maxPoints: 10,
   },
@@ -276,16 +282,26 @@ export const QUESTIONS: Record<string, GameQuestion> = {
 
   // ===================== MODULE 3 — HEART HEALTH =====================
   q19: {
-    id: 'q19', moduleId: 'module-3-heart-health', order: 19, responseType: 'drag_matrix',
-    prompt: bi('Match each fact to Heart Attack or Cardiac Arrest.', 'Padankan setiap fakta dengan Serangan Jantung atau Henti Jantung.'),
-    leftColumnLabel: bi('Heart Attack', 'Serangan Jantung'),
-    rightColumnLabel: bi('Cardiac Arrest', 'Henti Jantung'),
-    pairs: [
-      { id: 'p1', left: bi('Blood flow blocked', 'Aliran darah tersekat'), right: bi('Heart stops beating', 'Jantung berhenti berdegup') },
-      { id: 'p2', left: bi('A circulation problem', 'Masalah peredaran darah'), right: bi('An electrical problem', 'Masalah elektrik') },
-      { id: 'p3', left: bi('Usually still conscious', 'Biasanya masih sedar'), right: bi('Unconscious', 'Tidak sedarkan diri') },
-      { id: 'p4', left: bi('Symptoms build up slowly', 'Gejala muncul perlahan-lahan'), right: bi('Happens all of a sudden', 'Berlaku secara tiba-tiba') },
-      { id: 'p5', left: bi('Needs fast medical care', 'Perlukan rawatan perubatan segera'), right: bi('Needs CPR right away', 'Perlukan CPR serta-merta') },
+    id: 'q19', moduleId: 'module-3-heart-health', order: 19, responseType: 'classification_matrix',
+    prompt: bi(
+      'Sort each fact into the correct box — Heart Attack or Cardiac Arrest.',
+      'Susun setiap fakta ke dalam kotak yang betul — Serangan Jantung atau Henti Jantung.'
+    ),
+    categories: [
+      { id: 'heart_attack',   label: bi('❤️ Heart Attack',   '❤️ Serangan Jantung') },
+      { id: 'cardiac_arrest', label: bi('⚡ Cardiac Arrest', '⚡ Henti Jantung') },
+    ],
+    items: [
+      { id: 'blood_flow_blocked', label: bi('Blood flow blocked',       'Aliran darah tersekat'),          correctCategory: 'heart_attack' },
+      { id: 'circulation_problem',label: bi('Circulation problem',       'Masalah peredaran darah'),         correctCategory: 'heart_attack' },
+      { id: 'conscious',          label: bi('Usually still conscious',   'Biasanya masih sedar'),            correctCategory: 'heart_attack' },
+      { id: 'develops_slowly',    label: bi('Symptoms build up slowly',  'Gejala muncul perlahan-lahan'),    correctCategory: 'heart_attack' },
+      { id: 'fast_medical',       label: bi('Needs fast medical care',   'Perlu rawatan perubatan segera'),  correctCategory: 'heart_attack' },
+      { id: 'heart_stops',        label: bi('Heart stops beating',       'Jantung berhenti berdegup'),       correctCategory: 'cardiac_arrest' },
+      { id: 'electrical',         label: bi('Electrical problem',        'Masalah elektrik'),                correctCategory: 'cardiac_arrest' },
+      { id: 'unconscious',        label: bi('Unconscious',               'Tidak sedarkan diri'),             correctCategory: 'cardiac_arrest' },
+      { id: 'happens_suddenly',   label: bi('Happens all of a sudden',   'Berlaku secara tiba-tiba'),        correctCategory: 'cardiac_arrest' },
+      { id: 'needs_cpr',          label: bi('Needs CPR right away',      'Perlukan CPR serta-merta'),        correctCategory: 'cardiac_arrest' },
     ],
     requiresManualReview: false, maxPoints: 10,
   },
@@ -394,7 +410,8 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q27: {
     id: 'q27', moduleId: 'module-6-exercise', order: 27, responseType: 'math_input',
     prompt: bi('A 50-year-old man goes jogging. Work out his Max Heart Rate.', 'Seorang lelaki berusia 50 tahun pergi berjoging. Kira Kadar Denyutan Jantung Maksimum beliau.'),
-    formulaDisplay: bi('220 \u2212 Age', '220 \u2212 Umur'), expectedValue: 170, tolerance: 0,
+    // formulaDisplay intentionally blank — players must recall the formula themselves
+    formulaDisplay: bi('', ''), expectedValue: 170, tolerance: 0,
     requiresManualReview: false, maxPoints: 10,
   },
 

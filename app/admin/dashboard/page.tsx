@@ -20,14 +20,24 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">SHE Day 2026</p>
           <h1 className="text-xl font-bold text-slate-900">Event Coordination Dashboard</h1>
         </div>
-        <button onClick={signOut} className="text-sm font-medium text-slate-400 hover:text-slate-600">
-          Sign out
-        </button>
+        <div className="flex items-center gap-2">
+          <a
+            href="/winner"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-xl bg-[#E4002B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#c4001f]"
+          >
+            🏆 Winner Screen
+          </a>
+          <button onClick={signOut} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50">
+            Sign out
+          </button>
+        </div>
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-3">

@@ -15,12 +15,17 @@ export function MathInputInput({
 }: QuestionInputProps<'math_input'> & { question: MathInputQuestion }) {
   const [value, setValue] = useState('');
   const { t, tx } = useLanguage();
+  const formulaText = tx(question.formulaDisplay).trim();
 
   return (
     <div>
-      <HelperText>
-        {t('input.formula')}: <span className="font-mono font-semibold text-slate-700">{tx(question.formulaDisplay)}</span>
-      </HelperText>
+      {/* Only show the formula hint when it's non-empty — Q27 intentionally
+          has an empty formulaDisplay so players must recall it themselves */}
+      {formulaText && (
+        <HelperText>
+          {t('input.formula')}: <span className="font-mono font-semibold text-slate-700">{formulaText}</span>
+        </HelperText>
+      )}
       <input
         type="number"
         inputMode="numeric"

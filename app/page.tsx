@@ -60,6 +60,13 @@ export default function HomePage() {
       )}
 
       <Leaderboard limit={3} myTeamId={team?.id} />
+
+      {/* Discrete admin link — shown at the very bottom for facilitators */}
+      <div className="mt-8 text-center">
+        <a href="/admin/login" className="text-xs text-slate-300 hover:text-slate-500 underline underline-offset-2 transition">
+          Facilitator access
+        </a>
+      </div>
     </main>
   );
 }

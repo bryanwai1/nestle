@@ -26,7 +26,7 @@ export function useModuleProgress(teamId: string | undefined) {
     load();
 
     const channel = supabase
-      .channel(`progress-${teamId}`)
+      .channel(`progress-${teamId}-${Math.random().toString(36).slice(2)}`)
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'team_module_progress', filter: `team_id=eq.${teamId}` },

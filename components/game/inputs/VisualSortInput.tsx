@@ -7,7 +7,7 @@ import { stableShuffle } from '@/lib/game/shuffle';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import type { VisualSortQuestion } from '@/types/game';
 import type { QuestionInputProps } from '../QuestionInputSwitch';
-import { HelperText, SubmitButton } from './shared';
+import { SubmitButton } from './shared';
 
 export function VisualSortInput({
   question,
@@ -16,7 +16,7 @@ export function VisualSortInput({
   onAnswer,
 }: QuestionInputProps<'visual_sort'> & { question: VisualSortQuestion }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const { t, tx } = useLanguage();
+  const { tx } = useLanguage();
 
   const allChoices = useMemo(
     () => stableShuffle([...question.correctChoices, ...question.trapChoices], teamId, question.id),
@@ -34,7 +34,6 @@ export function VisualSortInput({
 
   return (
     <div>
-      <HelperText>{t('input.selectAllCorrect', { count: selected.size })}</HelperText>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {allChoices.map((choice) => {
           const isSelected = selected.has(choice.id);

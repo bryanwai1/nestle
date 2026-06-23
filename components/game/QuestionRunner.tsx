@@ -1,15 +1,18 @@
 // components/game/QuestionRunner.tsx
 //
-// PLAYER INTERFACE GUARDRAIL (from the brief): players get NO correctness
-// feedback, hints, or status on submit. This component is the one place
-// that rule is enforced — every input component below it just calls
-// `onAnswer(data)` and has no idea whether it was right. Nothing renders a
-// checkmark, a color change, or a toast until <ModuleCompleteScreen> mounts,
-// which only happens after the last question in the module is submitted.
+// PLAYER INTERFACE GUARDRAIL: players get NO correctness feedback, hints, or
+// status on submit. Inputs just call onAnswer(data); nothing renders right/
+// wrong until <ModuleCompleteScreen> mounts after the last question.
+//
+// RESUME + NO-RETAKE: on mount we read which questions this team has already
+// answered (answers are saved per-question the instant they submit, so a dead
+// phone loses nothing). Already-answered questions are skipped — a submitted
+// question can never be re-opened, even mid-module, and a completed module
+// can't be re-entered. That's the "it's a quiz, no second chances" rule.
 
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useGameTimer } from '@/lib/hooks/useGameTimer';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
@@ -28,6 +31,7 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
   const supabase = createClient();
   const { t, tx } = useLanguage();
 
+  const [ready, setReady] = useState(false);
   const [index, setIndex] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -37,8 +41,50 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
 
   const timer = useGameTimer({
     durationSeconds: gameModule?.timerSeconds ?? 600,
-    onExpire: () => finishModule(), // time's up → auto-submit whatever's answered
+    onExpire: () => finishModule(),
   });
+
+  // ---- Resume: figure out where this team should pick up --------------------
+  useEffect(() => {
+    let active = true;
+    (async () => {
+      // Module already finished (e.g. timed out previously)? Lock it.
+      const { data: prog } = await supabase
+        .from('team_module_progress')
+        .select('status')
+        .eq('team_id', team.id)
+        .eq('module_id', moduleId)
+        .maybeSingle();
+      if (!active) return;
+      if (prog?.status === 'completed') {
+        setCompleted(true);
+        setReady(true);
+        return;
+      }
+
+      // Which questions has this team already answered?
+      const { data: rows } = await supabase
+        .from('game_responses')
+        .select('question_id')
+        .eq('team_id', team.id)
+        .eq('module_id', moduleId);
+      if (!active) return;
+
+      const answered = new Set((rows ?? []).map((r) => r.question_id as string));
+      setAnsweredCount(answered.size);
+
+      const firstUnanswered = questions.findIndex((q) => !answered.has(q.id));
+      if (firstUnanswered === -1) {
+        setCompleted(true); // everything already answered
+      } else {
+        setIndex(firstUnanswered);
+      }
+      setReady(true);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [supabase, team.id, moduleId, questions]);
 
   const markModuleStarted = useCallback(async () => {
     await supabase.from('team_module_progress').upsert(
@@ -63,9 +109,6 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
     ) => {
       setSubmitting(true);
 
-      // 1. Persist the raw answer. RLS (responses_insert_own) guarantees the
-      //    client cannot set is_correct/points_awarded on this insert no
-      //    matter what it sends — those columns are forced to null/0/null.
       await supabase.from('game_responses').upsert(
         {
           team_id: team.id,
@@ -78,12 +121,6 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
         { onConflict: 'team_id,module_id,question_id' }
       );
 
-      // 2. Ask the database to grade what it just received. apply_autograde
-      //    re-reads the row itself and checks it against
-      //    question_answer_keys — the client never gets to claim its own
-      //    score. For manual-review question types this is a harmless no-op
-      //    (no answer key exists, row stays is_correct = null for the
-      //    admin Submissions Pipeline). See supabase/migrations/0002_*.sql.
       await supabase.rpc('apply_autograde', {
         p_team_id: team.id,
         p_module_id: moduleId,
@@ -93,7 +130,6 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
       setAnsweredCount((c) => c + 1);
       setSubmitting(false);
 
-      // ZERO feedback here. No "correct!" no color, nothing. Just advance.
       if (index < questions.length - 1) {
         setIndex((i) => i + 1);
       } else {
@@ -111,9 +147,20 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
     );
   }
 
+  if (!ready) {
+    return (
+      <div className="mx-auto flex max-w-2xl items-center justify-center rounded-2xl border border-slate-200 bg-white p-12 text-slate-400">
+        <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-[#0B2545]" />
+      </div>
+    );
+  }
+
   if (completed) {
     return <ModuleCompleteScreen moduleId={moduleId} team={team} answeredCount={answeredCount} />;
   }
+
+  // Continuous quiz numbering Q1..Q32 via each question's global `order`.
+  const questionNumber = (current as GameQuestion & { order?: number }).order ?? index + 1;
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -127,9 +174,14 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
       />
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+        <div className="mb-4 flex items-center gap-3">
+          <span className="inline-flex items-center rounded-lg bg-[#E4002B] px-3 py-1 text-sm font-black tracking-tight text-white shadow-sm">
+            Q{questionNumber}
+          </span>
+        </div>
         <p className="mb-6 text-lg font-medium text-slate-900">{tx(current.prompt)}</p>
         <QuestionInputSwitch
-          key={current.id} // remount cleanly per question — no stale local state
+          key={current.id}
           question={current}
           teamId={team.id}
           disabled={submitting}

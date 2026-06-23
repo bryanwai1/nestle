@@ -1,9 +1,7 @@
 // components/game/inputs/VideoFillBlankInput.tsx
 //
-// Wireframe page 7 annotated the original MCQ mockup with "Make this fill in
-// the blank" — and the brief independently notes these need fuzzy/keyword
-// grading, which only makes sense for free text. So Q6-15 render the hazard
-// clip plus a single text field instead of multiple-choice options.
+// Q6-15: hazard clip plus a single free-text field. Keyword auto-graded.
+// Quiz mode — no helper line telling players what to do beyond the prompt.
 
 'use client';
 
@@ -11,7 +9,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import type { VideoIdentifyQuestion } from '@/types/game';
 import type { QuestionInputProps } from '../QuestionInputSwitch';
-import { HelperText, SubmitButton } from './shared';
+import { SubmitButton } from './shared';
 
 export function VideoFillBlankInput({
   question,
@@ -31,7 +29,6 @@ export function VideoFillBlankInput({
           className="mb-4 aspect-video w-full rounded-xl bg-slate-900"
         />
       )}
-      <HelperText>{t('input.typeAnswer')}</HelperText>
       <input
         type="text"
         value={text}

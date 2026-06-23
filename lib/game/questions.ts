@@ -324,14 +324,14 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   },
   q21: {
     id: 'q21', moduleId: 'module-3-heart-health', order: 21, responseType: 'subjective_select',
-    prompt: bi('Name 3 tests that check your heart health.', 'Namakan 3 ujian yang memeriksa kesihatan jantung anda.'),
+    prompt: bi('Name 4 tests that check your heart health.', 'Namakan 4 ujian yang memeriksa kesihatan jantung anda.'),
     acceptableAnswers: [
       { id: 'a1', text: bi('Stress Test', 'Ujian Tekanan (Stress Test)') },
       { id: 'a2', text: bi('ECG', 'ECG') },
       { id: 'a3', text: bi('CT Scan (CT Coronary Angiography)', 'Imbasan CT (CT Coronary Angiography)') },
       { id: 'a4', text: bi('Angiogram (Coronary Angiogram)', 'Angiogram (Coronary Angiogram)') },
     ],
-    minCorrectRequired: 3, freeText: true,
+    minCorrectRequired: 4, freeText: true,
     requiresManualReview: true, maxPoints: 10,
   },
 

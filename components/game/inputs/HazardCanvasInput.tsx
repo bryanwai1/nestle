@@ -1,8 +1,9 @@
 // components/game/inputs/HazardCanvasInput.tsx
 //
 // Coordinates are stored as percentages of the rendered image's width/height
-// (not pixels), so a tap recorded on a phone lines up correctly when an
-// admin reviews it later on a desktop monitor at a different image size.
+// (not pixels), so a tap recorded on a phone lines up correctly when graded
+// later. Quiz mode: no "find N hazards" hint — players get no clue how many
+// there are. Undo / clear are editing tools, not answer hints, so they stay.
 
 'use client';
 
@@ -10,7 +11,7 @@ import { useRef, useState } from 'react';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import type { HazardCanvasQuestion } from '@/types/game';
 import type { QuestionInputProps } from '../QuestionInputSwitch';
-import { HelperText, SubmitButton } from './shared';
+import { SubmitButton } from './shared';
 
 export function HazardCanvasInput({
   question,
@@ -26,17 +27,15 @@ export function HazardCanvasInput({
     const rect = imgRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    setTaps((t) => [...t, { x, y }]);
+    setTaps((prev) => [...prev, { x, y }]);
   }
 
   function undoLast() {
-    setTaps((t) => t.slice(0, -1));
+    setTaps((prev) => prev.slice(0, -1));
   }
 
   return (
     <div>
-      <HelperText>{t('input.tapHazardHint', { count: taps.length, target: question.targetHazardCount })}</HelperText>
-
       <div
         ref={imgRef}
         onClick={handleTap}
@@ -45,11 +44,11 @@ export function HazardCanvasInput({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={question.imageUrl} alt="Spot the hazards" className="h-full w-full object-cover" draggable={false} />
-        {taps.map((t, i) => (
+        {taps.map((tap, i) => (
           <div
             key={i}
             className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#E4002B] text-center text-[10px] font-bold leading-5 text-white shadow"
-            style={{ left: `${t.x}%`, top: `${t.y}%`, width: 20, height: 20 }}
+            style={{ left: `${tap.x}%`, top: `${tap.y}%`, width: 20, height: 20 }}
           >
             {i + 1}
           </div>

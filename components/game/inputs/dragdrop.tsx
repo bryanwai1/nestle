@@ -94,6 +94,18 @@ export function usePointerDrag(onDrop: (itemId: string, zoneId: string) => void)
 type Cat = { id: string; label: any };
 type Item = { id: string; label: any };
 
+// Maps a category label to an emoji icon by meaning (EN text match).
+// Falls back to a neutral box if no match, so it never breaks.
+function iconForLabel(label: any): string {
+  const s = (label?.en ?? '').toLowerCase();
+  if (s.includes('non-recyclable') || s.includes('non recyclable')) return '🚫';
+  if (s.includes('recycl')) return '♻️';
+  if (s.includes('burn') || s.includes('fat')) return '🔥';
+  if (s.includes('muscle')) return '💪';
+  if (s.includes('stretch')) return '🧘';
+  return '📦';
+}
+
 export function BoxSort({
   categories,
   items,
@@ -158,6 +170,7 @@ export function BoxSort({
       </div>
 
       {/* category boxes */}
+      
       <div className={`grid gap-3 ${categories.length >= 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
         {categories.map((cat) => {
           const inBox = items.filter((it) => placements[it.id] === cat.id);
@@ -169,7 +182,10 @@ export function BoxSort({
                 hoverZone === cat.id ? 'border-[#0B2545] bg-[#0B2545]/5' : 'border-slate-200 bg-slate-50'
               }`}
             >
-              <p className="mb-2 text-sm font-semibold text-slate-800">{tx(cat.label)}</p>
+              <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-800">
+                <span aria-hidden="true">{iconForLabel(cat.label)}</span>
+                <span>{tx(cat.label)}</span>
+              </p>
               <div className="flex flex-col gap-2">
                 {inBox.map((it) => <Chip key={it.id} it={it} />)}
               </div>

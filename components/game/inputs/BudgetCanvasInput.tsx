@@ -102,8 +102,7 @@ export function BudgetCanvasInput({
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-700/80">{tx(q.label)}</p>
-        {isHover && (
+<p className="text-[10px] font-bold uppercase tracking-wide text-slate-700/80">{tx(q.label)}</p>        {isHover && (
           <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
             drop here
           </span>
@@ -117,18 +116,13 @@ export function BudgetCanvasInput({
 
   return (
     <div>
-      {/* Round plate: clip the ½ / ¼ / ¼ grid to a circle, thick rim */}
-      <div className="mx-auto mb-4 w-full max-w-sm">
-        <div
-          className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-[10px] border-slate-300 bg-white shadow-inner"
-          style={{ clipPath: 'circle(50% at 50% 50%)' }}
-        >
-          <div className="grid h-full w-full grid-cols-2">
-            <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-dashed border-white" />
-            <div className="col-span-1 grid grid-rows-2">
-              <Section qid="protein" className="border-b-2 border-dashed border-white" />
-              <Section qid="carb" className="" />
-            </div>
+{/* Plate: bold ½ / ¼ / ¼ cuts, no clipping. Easy to drop on phones. */}
+      <div className="mx-auto mb-4 w-full max-w-md">
+        <div className="grid aspect-[3/2] w-full grid-cols-2 overflow-hidden rounded-3xl border-4 border-slate-300 bg-white shadow-inner">
+          <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-4 border-slate-300" />
+          <div className="col-span-1 grid grid-rows-2">
+            <Section qid="protein" className="border-b-4 border-slate-300" />
+            <Section qid="carb" className="" />
           </div>
         </div>
         <p className="mt-2 text-center text-[11px] text-slate-400">

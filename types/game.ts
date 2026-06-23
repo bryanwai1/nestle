@@ -153,7 +153,7 @@ export interface BudgetCanvasQuestion extends QuestionBase {
     label: Text;
     category: 'veg_fruit' | 'protein' | 'carb';
     costRM: number;
-    calories: number;
+    calories: number; imageUrl?: string;
   }>;
 }
 

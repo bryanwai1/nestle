@@ -98,7 +98,7 @@ export function BudgetCanvasInput({
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex flex-col gap-1.5 overflow-hidden p-2.5 transition ${SECTION_TINT[qid] ?? ''} ${
+        className={`${className} relative flex h-full flex-col gap-1.5 overflow-hidden p-2.5 transition ${SECTION_TINT[qid] ?? ''} ${
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
@@ -116,20 +116,21 @@ export function BudgetCanvasInput({
 
   return (
     <div>
-{/* Plate: bold ½ / ¼ / ¼ cuts, no clipping. Easy to drop on phones. */}
-      <div className="mx-auto mb-4 w-full max-w-md">
-        <div className="grid aspect-[3/2] w-full grid-cols-2 overflow-hidden rounded-3xl border-4 border-slate-300 bg-white shadow-inner">
-          <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-4 border-slate-300" />
-          <div className="col-span-1 grid grid-rows-2">
-            <Section qid="protein" className="border-b-4 border-slate-300" />
-            <Section qid="carb" className="" />
+{/* Round plate: ½ / ¼ / ¼ cuts clipped to a circle */}
+      <div className="mx-auto mb-4 w-full max-w-sm">
+        <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-[10px] border-slate-300 bg-white shadow-inner">
+          <div className="grid h-full w-full grid-cols-2">
+            <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-white" />
+            <div className="col-span-1 grid h-full grid-rows-2">
+              <Section qid="protein" className="border-b-2 border-white" />
+              <Section qid="carb" className="" />
+            </div>
           </div>
         </div>
         <p className="mt-2 text-center text-[11px] text-slate-400">
           ½ vegetables &amp; fruit · ¼ protein · ¼ carbs
         </p>
       </div>
-
       <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
         overBudget ? 'border-red-300 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
       }`}>

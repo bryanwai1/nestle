@@ -9,11 +9,11 @@
  ✓ Compiled successfully
    Linting and checking validity of types ...
    Collecting page data ...
-   Generating static pages (0/12) ...
-   Generating static pages (3/12) 
-   Generating static pages (6/12) 
-   Generating static pages (9/12) 
- ✓ Generating static pages (12/12)
+   Generating static pages (0/13) ...
+   Generating static pages (3/13) 
+   Generating static pages (6/13) 
+   Generating static pages (9/13) 
+ ✓ Generating static pages (13/13)
    Finalizing page optimization ...
    Collecting build traces ...
 
@@ -24,10 +24,11 @@ Route (app)                              Size     First Load JS
 ├ ƒ /admin/dashboard                     4.93 kB         166 kB
 ├ ○ /admin/login                         1.24 kB         154 kB
 ├ ƒ /admin/mental-health                 1.76 kB         155 kB
+├ ○ /admin/preview                       5 kB            173 kB
 ├ ƒ /api/speed-bonus                     0 B                0 B
 ├ ○ /mental-health-assessment            7.19 kB         160 kB
-├ ○ /play                                1.89 kB         176 kB
-├ ƒ /play/[moduleId]                     15.5 kB         190 kB
+├ ○ /play                                1.89 kB         177 kB
+├ ƒ /play/[moduleId]                     9.27 kB         192 kB
 └ ○ /winner                              2.51 kB         156 kB
 + First Load JS shared by all            87.3 kB
   ├ chunks/117-345467cefe42d6ff.js       31.7 kB

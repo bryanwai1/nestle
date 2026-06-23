@@ -19,7 +19,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between px-5 py-4">
          <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/she-day-logo.png" alt="Nestlé SHE Day" className="h-11 w-auto rounded-md bg-white px-2 py-1" />
+            <img src="/she-day-logo.png/image001.png" alt="Nestlé SHE Day" className="h-11 w-auto rounded-md bg-white px-2 py-1" />
             <div>
               <p className="text-xs font-semibold tracking-wide text-white/60">{t('landing.eyebrow')}</p>
               <p className="text-lg font-bold">{t('landing.orgName')}</p>

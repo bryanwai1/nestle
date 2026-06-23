@@ -39,11 +39,45 @@ export interface Database {
           session_group: SessionGroup;
           current_total_score: number;
           registration_time: string;
-          updated_at: string;
-        };
+          Update: Partial<{
+          session_group: SessionGroup;
+        }>;
+        Relationships: [];
+      };
+      
         Insert: never; // use the create_team() RPC instead
         Update: Partial<{
           session_group: SessionGroup;
+        }>;
+        Relationships: [];
+      };
+      mental_health_checkins: {
+        Row: {
+          id: string;
+          team_id: string | null;
+          first_name: string;
+          last_name: string | null;
+          batch_session_id: string | null;
+          raw_score: number;
+          bracket: MentalHealthBracket;
+          answers: number[];
+          created_at: string;
+        };
+        Insert: {
+          team_id?: string | null;
+          first_name: string;
+          last_name?: string | null;
+          batch_session_id?: string | null;
+          raw_score: number;
+          bracket: MentalHealthBracket;
+          answers: number[];
+        };
+        Update: Partial<{
+          first_name: string;
+          last_name: string | null;
+          raw_score: number;
+          bracket: MentalHealthBracket;
+          answers: number[];
         }>;
         Relationships: [];
       };

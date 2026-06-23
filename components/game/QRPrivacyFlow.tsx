@@ -32,7 +32,7 @@ export function QRPrivacyFlow({ team }: { team: Team }) {
 
   const timer = useGameTimer({ durationSeconds: 5 * 60 });
 
-  const query = `batch=${batchSessionId}&lang=${lang}`;
+  const query = `batch=${batchSessionId}&lang=${lang}&team=${team.id}`;
   const assessmentUrl = `${PROD_BASE}/mental-health-assessment?${query}`; // for OTHER phones (QR)
   const ownCheckinPath = `/mental-health-assessment?${query}`; // for THIS device
 

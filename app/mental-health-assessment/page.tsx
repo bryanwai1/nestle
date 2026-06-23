@@ -1,9 +1,10 @@
 // app/mental-health-assessment/page.tsx
 //
-// Reached only via the QR code in QRPrivacyFlow. Nothing on this page ever
-// collects a name, team, or device identifier — the only thing written to
-// Supabase is (batch_session_id, score, bracket). See the schema comment in
-// 0001_init.sql for why that's a structural guarantee, not just a UI choice.
+// NAMED, manager-confidential wellbeing check-in (NOT anonymous).
+// The team phone shows a QR carrying ?team=<id>. Each teammate scans it on
+// their own phone, picks their name from their team's 3 registered members,
+// and answers privately. Saved to mental_health_checkins with their name.
+// Readable ONLY via the password-gated get_mental_health_checkins() RPC.
 
 'use client';
 
@@ -77,37 +78,68 @@ const ADVICE: Record<string, { title: Text; tips: Text[] }> = {
   },
 };
 
+const DISCLOSURE: Text = {
+  en: 'This check-in is NOT anonymous. Your name, score, and answers are shared confidentially with management for support — not with your teammates.',
+  bm: 'Semakan ini BUKAN tanpa nama. Nama, skor, dan jawapan anda dikongsi secara sulit dengan pihak pengurusan untuk sokongan — bukan dengan rakan sepasukan.',
+};
+
 function AssessmentForm() {
   const params = useSearchParams();
   const batch = params.get('batch') ?? `unspecified-${new Date().toISOString().slice(0, 10)}`;
-  const { lang, setLang, t, tx } = useLanguage();
+  const teamId = params.get('team');
+  const { setLang, t, tx } = useLanguage();
 
-  // If the QR code carried a language (see QRPrivacyFlow), open already set
-  // to it — the team member shouldn't have to re-toggle on a second device.
   useEffect(() => {
     const urlLang = params.get('lang');
     if (urlLang === 'en' || urlLang === 'bm') setLang(urlLang as Lang);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [names, setNames] = useState<string[]>([]);
+  const [pickedName, setPickedName] = useState<string>('');
+  const [typedName, setTypedName] = useState<string>('');
+
+  useEffect(() => {
+    if (!teamId) return;
+    let active = true;
+    (async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('teams')
+        .select('member_1_name, member_2_name, member_3_name')
+        .eq('id', teamId)
+        .single();
+      if (active && data) {
+        setNames([data.member_1_name, data.member_2_name, data.member_3_name].filter(Boolean));
+      }
+    })();
+    return () => { active = false; };
+  }, [teamId]);
+
   const [answers, setAnswers] = useState<Array<number | null>>(Array(STATEMENTS.length).fill(null));
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [score, setScore] = useState(0);
 
+  const finalName = teamId && names.length > 0 ? pickedName : typedName.trim();
   const allAnswered = answers.every((a) => a !== null);
+  const canSubmit = allAnswered && finalName.length > 0;
 
   async function handleSubmit() {
-    if (!allAnswered) return;
+    if (!canSubmit) return;
     setSubmitting(true);
     const total = answers.reduce((s: number, a) => s + (a ?? 0), 0);
     const bracket = bracketFor(total);
 
     const supabase = createClient();
-    await supabase.from('anonymous_mental_health_metrics').insert({
+    await supabase.from('mental_health_checkins').insert({
+      team_id: teamId,
+      first_name: finalName,
+      last_name: null,
       batch_session_id: batch,
-      raw_calculated_score: total,
-      interpretation_bracket: bracket,
+      raw_score: total,
+      bracket,
+      answers: answers.map((a) => a ?? 0),
     });
 
     setScore(total);
@@ -123,7 +155,7 @@ function AssessmentForm() {
         <div className="mb-4 flex justify-end"><LanguageToggle /></div>
         <h2 className="text-xl font-semibold text-slate-900">{tx(advice.title)}</h2>
         <p className="mt-1 text-sm text-slate-500">
-          {t('mh.scoreLabel')}: {score} / 30 — {t('mh.keptPrivate')}.
+          {t('mh.scoreLabel')}: {score} / 30
         </p>
         <ul className="mt-4 space-y-2 text-sm text-slate-700">
           {advice.tips.map((tip, i) => (
@@ -147,6 +179,43 @@ function AssessmentForm() {
         <h1 className="text-lg font-semibold text-slate-900">{t('mh.checkinTitle')}</h1>
         <LanguageToggle />
       </div>
+
+      <p className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-xs font-medium text-amber-800">
+        {tx(DISCLOSURE)}
+      </p>
+
+      <div className="mb-5">
+        <p className="mb-2 text-sm font-medium text-slate-700">
+          {tx({ en: 'Who are you?', bm: 'Siapa anda?' })}
+        </p>
+        {teamId && names.length > 0 ? (
+          <div className="grid gap-1.5">
+            {names.map((n) => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => setPickedName(n)}
+                className={`rounded-lg border px-3 py-2 text-left text-sm font-medium transition ${
+                  pickedName === n
+                    ? 'border-[#0B2545] bg-[#0B2545] text-white'
+                    : 'border-slate-200 text-slate-700 hover:border-slate-300'
+                }`}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <input
+            type="text"
+            value={typedName}
+            onChange={(e) => setTypedName(e.target.value)}
+            placeholder={tx({ en: 'Type your name', bm: 'Taip nama anda' }) as string}
+            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 focus:border-[#0B2545] focus:outline-none"
+          />
+        )}
+      </div>
+
       <p className="mb-5 text-sm text-slate-500">{t('mh.checkinDescription')}</p>
 
       <div className="space-y-5">
@@ -176,7 +245,7 @@ function AssessmentForm() {
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={!allAnswered || submitting}
+        disabled={!canSubmit || submitting}
         className="mt-6 w-full rounded-xl bg-[#E4002B] px-5 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
       >
         {submitting ? t('mh.submitting') : t('mh.submitPrivately')}

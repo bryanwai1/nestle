@@ -26,9 +26,9 @@ Route (app)                              Size     First Load JS
 ├ ƒ /admin/mental-health                 1.76 kB         155 kB
 ├ ○ /admin/preview                       5 kB            173 kB
 ├ ƒ /api/speed-bonus                     0 B                0 B
-├ ○ /mental-health-assessment            7.19 kB         160 kB
+├ ○ /mental-health-assessment            7.66 kB         161 kB
 ├ ○ /play                                1.89 kB         177 kB
-├ ƒ /play/[moduleId]                     9.27 kB         192 kB
+├ ƒ /play/[moduleId]                     9.28 kB         192 kB
 └ ○ /winner                              2.51 kB         156 kB
 + First Load JS shared by all            87.3 kB
   ├ chunks/117-345467cefe42d6ff.js       31.7 kB

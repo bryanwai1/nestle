@@ -236,32 +236,19 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q17: {
     id: 'q17', moduleId: 'module-2-stf', order: 17, responseType: 'hazard_canvas',
     prompt: bi(
-      'Tap every hazard you can find in this photo. Some spots look risky but aren\u2019t.',
+      'Tap every hazard you can find in this photo. Some spots look risky but aren’t.',
       'Ketik setiap bahaya yang anda jumpa dalam gambar ini. Sesetengah tempat kelihatan berbahaya tetapi sebenarnya tidak.'
     ),
-    imageUrl: '/media/stf/warehouse-hazard-scene.jpg', // TODO: organizer to supply real annotated office/outlet photo
-    targetHazardCount: 10,
-    // Coordinates are % of image width/height — placeholders until the real
-    // photo + hazard map are supplied; swap these once the asset lands.
+    imageUrl: '/hazards/office-1.png',
+    targetHazardCount: 5,
     hazards: [
-      { id: 'h1', x: 12, y: 70, radius: 6, label: bi('Loose cable across walkway', 'Wayar longgar merentasi laluan') },
-      { id: 'h2', x: 28, y: 55, radius: 6, label: bi('Wet floor, no warning sign', 'Lantai basah, tiada tanda amaran') },
-      { id: 'h3', x: 40, y: 80, radius: 6, label: bi('Boxes stacked in the aisle', 'Kotak bertindan di laluan') },
-      { id: 'h4', x: 55, y: 35, radius: 6, label: bi('Damaged ladder left out', 'Tangga rosak dibiarkan') },
-      { id: 'h5', x: 63, y: 60, radius: 6, label: bi('Open drawer at knee height', 'Laci terbuka pada paras lutut') },
-      { id: 'h6', x: 70, y: 20, radius: 6, label: bi('Items stacked above safe height', 'Barang bertindan melebihi tinggi selamat') },
-      { id: 'h7', x: 18, y: 30, radius: 6, label: bi('Torn carpet edge', 'Tepi karpet koyak') },
-      { id: 'h8', x: 80, y: 75, radius: 6, label: bi('Blocked fire exit', 'Pintu keluar kebakaran tersekat') },
-      { id: 'h9', x: 45, y: 15, radius: 6, label: bi('Unsecured shelving', 'Rak tidak diikat dengan kemas') },
-      { id: 'h10', x: 88, y: 40, radius: 6, label: bi('Spilled liquid near doorway', 'Cecair tertumpah berhampiran pintu') },
+      { id: 'h1', x: 36, y: 65, radius: 9, label: bi('Open drawer protruding into walkway', 'Laci terbuka menganjur ke laluan') },
+      { id: 'h2', x: 48, y: 61, radius: 7, label: bi('Power cable trailing across walkway', 'Wayar kuasa merentasi laluan') },
+      { id: 'h3', x: 59, y: 57, radius: 7, label: bi('Coffee spill, no wet-floor sign', 'Kopi tertumpah, tiada tanda lantai basah') },
+      { id: 'h4', x: 74, y: 52, radius: 10, label: bi('Boxes stacked too high and leaning', 'Kotak bertindan terlalu tinggi dan condong') },
+      { id: 'h5', x: 25, y: 82, radius: 7, label: bi('Overloaded power strip under desk', 'Soket kuasa berlebihan di bawah meja') },
     ],
-    decoyZones: [
-      { id: 'd1', x: 33, y: 25, radius: 6 },
-      { id: 'd2', x: 50, y: 50, radius: 6 },
-      { id: 'd3', x: 60, y: 85, radius: 6 },
-      { id: 'd4', x: 75, y: 30, radius: 6 },
-      { id: 'd5', x: 20, y: 90, radius: 6 },
-    ],
+    decoyZones: [],
     requiresManualReview: true, maxPoints: 10,
   },
   q18: {

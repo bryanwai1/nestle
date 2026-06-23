@@ -1,15 +1,10 @@
 // @ts-nocheck
 // components/game/inputs/BudgetCanvasInput.tsx
 //
-// "Suku-Suku Separuh" healthy-plate builder. Plate shows ½ / ¼ / ¼ cut lines;
-// players drag whole foods from the 3-column tray onto the plate.
-//
-// HARD SECTION LOCK: a food only sticks in the section matching its category.
-// While dragging, ONLY the correct section lights up green ("drop here") and
-// every other section dims — so a protein can never land in the vegetable
-// space. Dropping anywhere else snaps the chip back to the tray.
-//
-// Food cards use imageUrl when present (real photos) and fall back to emoji.
+// "Suku-Suku Separuh" healthy-plate builder — ROUND plate, ½ veg/fruit,
+// ¼ protein, ¼ carbs. Players may place ANY food in ANY section (free
+// placement); correctness is judged at grading time, not blocked here.
+// Cost/calorie tracking and the admin summary are unchanged.
 
 'use client';
 
@@ -28,6 +23,12 @@ const EMOJI: Record<string, string> = {
 
 const COLUMN_ORDER = ['protein', 'veg_fruit', 'carb'];
 
+const SECTION_TINT: Record<string, string> = {
+  veg_fruit: 'bg-[#C0DD97]',
+  protein: 'bg-[#F0997B]',
+  carb: 'bg-[#FAC775]',
+};
+
 export function BudgetCanvasInput({
   question,
   disabled,
@@ -41,19 +42,17 @@ export function BudgetCanvasInput({
     [question.foodCards]
   );
 
+  // Free placement: any food can go in any section. Wrong placement is judged
+  // at grading, not blocked here.
   const { startDrag, draggingItem, hoverZone } = usePointerDrag((foodId, zoneId) => {
-    const food = foodById[foodId];
-    if (!food) return;
+    if (!foodById[foodId]) return;
     setPlaced((p) => {
       const next = { ...p };
       if (zoneId === '__tray') delete next[foodId];
-      else if (food.category === zoneId) next[foodId] = zoneId; // ONLY the matching section
-      return next; // wrong section -> ignored, chip snaps back
+      else next[foodId] = zoneId;
+      return next;
     });
   });
-
-  // While a food is in hand, this is the one section it's allowed to enter.
-  const draggingCategory = draggingItem ? foodById[draggingItem]?.category ?? null : null;
 
   const totalCost = useMemo(
     () => Object.keys(placed).reduce((s, id) => s + (foodById[id]?.costRM ?? 0), 0),
@@ -95,19 +94,18 @@ export function BudgetCanvasInput({
   const Section = ({ qid, className }: { qid: string; className: string }) => {
     const q = quadrant(qid);
     if (!q) return null;
-    const isValid = draggingCategory ? draggingCategory === qid : true;
-    const isHover = hoverZone === qid && isValid;
+    const isHover = hoverZone === qid;
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex flex-col gap-1.5 p-2 transition ${
-          isHover ? 'bg-emerald-100 ring-2 ring-inset ring-emerald-400' : ''
-        } ${draggingCategory && !isValid ? 'opacity-30' : ''}`}
+        className={`${className} relative flex flex-col gap-1.5 overflow-hidden p-2.5 transition ${SECTION_TINT[qid] ?? ''} ${
+          isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
+        }`}
       >
-        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{tx(q.label)}</p>
-        {draggingCategory === qid && (
-          <span className="absolute right-2 top-2 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
-            drop here ✓
+        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-700/80">{tx(q.label)}</p>
+        {isHover && (
+          <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
+            drop here
           </span>
         )}
         <div className="flex flex-wrap gap-1.5">
@@ -119,12 +117,23 @@ export function BudgetCanvasInput({
 
   return (
     <div>
-      <div className="mx-auto mb-4 grid aspect-[3/2] w-full max-w-md grid-cols-2 overflow-hidden rounded-2xl border-4 border-slate-300 bg-white shadow-inner">
-        <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-dashed border-slate-300" />
-        <div className="col-span-1 grid grid-rows-2">
-          <Section qid="protein" className="border-b-2 border-dashed border-slate-300" />
-          <Section qid="carb" className="" />
+      {/* Round plate: clip the ½ / ¼ / ¼ grid to a circle, thick rim */}
+      <div className="mx-auto mb-4 w-full max-w-sm">
+        <div
+          className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-[10px] border-slate-300 bg-white shadow-inner"
+          style={{ clipPath: 'circle(50% at 50% 50%)' }}
+        >
+          <div className="grid h-full w-full grid-cols-2">
+            <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-dashed border-white" />
+            <div className="col-span-1 grid grid-rows-2">
+              <Section qid="protein" className="border-b-2 border-dashed border-white" />
+              <Section qid="carb" className="" />
+            </div>
+          </div>
         </div>
+        <p className="mt-2 text-center text-[11px] text-slate-400">
+          ½ vegetables &amp; fruit · ¼ protein · ¼ carbs
+        </p>
       </div>
 
       <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${

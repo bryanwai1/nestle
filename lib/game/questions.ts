@@ -153,7 +153,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   },
 q6: {
     id: 'q6', moduleId: 'module-1-safe-driving', order: 6, responseType: 'video_identify',
-    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    prompt: bi('Watch the video, then answer both parts below.', 'Tonton video, kemudian jawab kedua-dua bahagian di bawah.'),
     videoUrl: '/media/safe-driving/q6-fatigue.mp4',
     acceptedKeywords: [
       'dozing off', 'dozing', 'sleeping', 'asleep', 'fatigue', 'drowsy', 'drowsiness', 'mengantuk', 'tidur', 'keletihan', 'penat',
@@ -163,7 +163,7 @@ q6: {
   },
   q7: {
     id: 'q7', moduleId: 'module-1-safe-driving', order: 7, responseType: 'video_identify',
-    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    prompt: bi('Watch the video, then answer both parts below.', 'Tonton video, kemudian jawab kedua-dua bahagian di bawah.'),
     videoUrl: '/media/safe-driving/q8-seatbelt.mp4',
     acceptedKeywords: [
       'not wearing seatbelt', 'no seatbelt', 'seatbelt', 'seat belt', 'tidak pakai tali pinggang keledar', 'tiada tali pinggang keledar', 'tali pinggang keledar',
@@ -173,7 +173,7 @@ q6: {
   },
   q8: {
     id: 'q8', moduleId: 'module-1-safe-driving', order: 8, responseType: 'video_identify',
-    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    prompt: bi('Watch the video, then answer both parts below.', 'Tonton video, kemudian jawab kedua-dua bahagian di bawah.'),
     videoUrl: '/media/safe-driving/q10-distracted.mp4',
     acceptedKeywords: [
       'distracted', 'texting', 'handphone', 'mobile', 'phone', 'not paying attention', 'using phone', 'leka', 'bertelefon', 'guna telefon', 'tidak fokus',
@@ -183,7 +183,7 @@ q6: {
   },
   q9: {
     id: 'q9', moduleId: 'module-1-safe-driving', order: 9, responseType: 'video_identify',
-    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    prompt: bi('Watch the video, then answer both parts below.', 'Tonton video, kemudian jawab kedua-dua bahagian di bawah.'),
     videoUrl: '/media/safe-driving/q12-reckless.mp4',
     acceptedKeywords: [
       'rushing', 'reckless driving', 'reckless', 'unsafe driving', 'dangerous', 'speeding', 'tergesa-gesa', 'memandu cuai', 'memandu merbahaya', 'laju',
@@ -193,7 +193,7 @@ q6: {
   },
   q10: {
     id: 'q10', moduleId: 'module-1-safe-driving', order: 10, responseType: 'video_identify',
-    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    prompt: bi('Watch the video, then answer both parts below.', 'Tonton video, kemudian jawab kedua-dua bahagian di bawah.'),
     videoUrl: '/media/safe-driving/q14-mirror.mp4',
     acceptedKeywords: [
       'not checking mirror', 'side mirror', 'no signal', 'no indicator', 'blind spot', 'not signaling', 'tidak periksa cermin', 'cermin sisi', 'tiada isyarat', 'bintik buta',

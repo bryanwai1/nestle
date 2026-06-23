@@ -98,7 +98,7 @@ export function BudgetCanvasInput({
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex h-full flex-col gap-1.5 overflow-hidden px-4 py-3 transition ${SECTION_TINT[qid] ?? ''} ${
+        className={`${className} relative flex h-full flex-col gap-1.5 px-4 py-3 transition ${
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
@@ -116,13 +116,29 @@ export function BudgetCanvasInput({
 
   return (
     <div>
-{/* Round plate: ½ / ¼ / ¼ cuts clipped to a circle */}
+{/* SVG plate: real ½ / ¼ / ¼ wedges — color IS the circle, no clip bleed.
+          Invisible square drop-zones overlay each wedge so dragging still works. */}
       <div className="mx-auto mb-4 w-full max-w-sm">
-        <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full bg-white shadow-inner ring-[10px] ring-inset ring-slate-300">
-          <div className="grid h-full w-full grid-cols-2">
-            <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-white" />
-            <div className="col-span-1 grid h-full grid-rows-2">
-              <Section qid="protein" className="border-b-2 border-white" />
+        <div className="relative mx-auto aspect-square w-full">
+          <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
+            {/* veg/fruit = left half */}
+            <path d="M100,100 L100,2 A98,98 0 0,0 100,198 Z" fill="#C0DD97" />
+            {/* protein = top-right quarter */}
+            <path d="M100,100 L100,2 A98,98 0 0,1 198,100 Z" fill="#F0997B" />
+            {/* carb = bottom-right quarter */}
+            <path d="M100,100 L198,100 A98,98 0 0,1 100,198 Z" fill="#FAC775" />
+            {/* white cut lines */}
+            <line x1="100" y1="2" x2="100" y2="198" stroke="#fff" strokeWidth="2.5" />
+            <line x1="100" y1="100" x2="198" y2="100" stroke="#fff" strokeWidth="2.5" />
+            {/* rim */}
+            <circle cx="100" cy="100" r="98" fill="none" stroke="#cbd5e1" strokeWidth="4" />
+          </svg>
+
+          {/* Drop zones + placed chips, positioned over each wedge */}
+          <div className="absolute inset-0 grid grid-cols-2">
+            <Section qid="veg_fruit" className="col-span-1 row-span-2" />
+            <div className="col-span-1 grid grid-rows-2">
+              <Section qid="protein" className="" />
               <Section qid="carb" className="" />
             </div>
           </div>
@@ -131,7 +147,8 @@ export function BudgetCanvasInput({
           ½ vegetables &amp; fruit · ¼ protein · ¼ carbs
         </p>
       </div>
-      <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
+      
+            <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
         overBudget ? 'border-red-300 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
       }`}>
         <span>Spent</span>

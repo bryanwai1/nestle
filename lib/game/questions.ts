@@ -385,8 +385,8 @@ q6: {
   q28: {
     id: 'q28', moduleId: 'module-7-balanced-diet', order: 28, responseType: 'budget_canvas',
     prompt: bi(
-      'Build a healthy plate using Suku-Suku Separuh (\u00bd vegetables & fruit, \u00bc protein, \u00bc carbs). Don\u2019t spend more than RM12.',
-      'Bina pinggan sihat menggunakan Suku-Suku Separuh (\u00bd sayur & buah, \u00bc protein, \u00bc karbohidrat). Jangan belanja lebih daripada RM12.'
+      'Build a healthy plate using Suku-Suku Separuh (½ vegetables & fruit, ¼ protein, ¼ carbs). Don’t spend more than RM12.',
+      'Bina pinggan sihat menggunakan Suku-Suku Separuh (½ sayur & buah, ¼ protein, ¼ karbohidrat). Jangan belanja lebih daripada RM12.'
     ),
     budgetLimitRM: 12,
     quadrants: [
@@ -395,17 +395,27 @@ q6: {
       { id: 'carb', label: bi('Carbs', 'Karbohidrat'), fraction: 0.25 },
     ],
     foodCards: [
-      { id: 'f1', label: bi('Mixed vegetables', 'Sayur Campur'), category: 'veg_fruit', costRM: 2, calories: 40 },
-      { id: 'f2', label: bi('Banana', 'Pisang'), category: 'veg_fruit', costRM: 1, calories: 90 },
-      { id: 'f3', label: bi('Apple', 'Epal'), category: 'veg_fruit', costRM: 1.5, calories: 95 },
-      { id: 'f4', label: bi('Watermelon slice', 'Sepotong Tembikai'), category: 'veg_fruit', costRM: 1, calories: 30 },
-      { id: 'f5', label: bi('Grilled chicken', 'Ayam Panggang'), category: 'protein', costRM: 4, calories: 165 },
-      { id: 'f6', label: bi('Boiled egg', 'Telur Rebus'), category: 'protein', costRM: 1, calories: 78 },
-      { id: 'f7', label: bi('Grilled fish', 'Ikan Panggang'), category: 'protein', costRM: 5, calories: 140 },
-      { id: 'f8', label: bi('Tofu', 'Tauhu'), category: 'protein', costRM: 2, calories: 80 },
-      { id: 'f9', label: bi('Brown rice', 'Nasi Perang'), category: 'carb', costRM: 2, calories: 215 },
-      { id: 'f10', label: bi('Wholemeal bread', 'Roti Gandum Penuh'), category: 'carb', costRM: 1.5, calories: 70 },
-      { id: 'f11', label: bi('Sweet potato', 'Keledek'), category: 'carb', costRM: 1.5, calories: 90 },
+      // ----- protein -----
+      { id: 'f5',  label: bi('Grilled chicken', 'Ayam Panggang'),   category: 'protein',   costRM: 4,   calories: 165, imageUrl: '/food/chicken.png' },
+      { id: 'f6',  label: bi('Boiled egg', 'Telur Rebus'),          category: 'protein',   costRM: 1,   calories: 78,  imageUrl: '/food/egg.png' },
+      { id: 'f7',  label: bi('Grilled fish', 'Ikan Panggang'),      category: 'protein',   costRM: 5,   calories: 140, imageUrl: '/food/fish.png' },
+      { id: 'f8',  label: bi('Tofu', 'Tauhu'),                      category: 'protein',   costRM: 2,   calories: 80,  imageUrl: '/food/tofu.png' },
+      { id: 'f12', label: bi('Tempeh', 'Tempe'),                    category: 'protein',   costRM: 2,   calories: 190, imageUrl: '/food/tempeh.png' },
+      { id: 'f13', label: bi('Prawns', 'Udang'),                    category: 'protein',   costRM: 5,   calories: 99,  imageUrl: '/food/prawns.png' },
+      // ----- vegetables + fruit -----
+      { id: 'f1',  label: bi('Mixed vegetables', 'Sayur Campur'),   category: 'veg_fruit', costRM: 2,   calories: 40,  imageUrl: '/food/mixed_veg.png' },
+      { id: 'f14', label: bi('Kangkung', 'Kangkung'),               category: 'veg_fruit', costRM: 2,   calories: 30,  imageUrl: '/food/kangkung.png' },
+      { id: 'f2',  label: bi('Banana', 'Pisang'),                   category: 'veg_fruit', costRM: 1,   calories: 90,  imageUrl: '/food/banana.png' },
+      { id: 'f15', label: bi('Papaya', 'Betik'),                    category: 'veg_fruit', costRM: 1.5, calories: 60,  imageUrl: '/food/papaya.png' },
+      { id: 'f4',  label: bi('Watermelon slice', 'Sepotong Tembikai'), category: 'veg_fruit', costRM: 1, calories: 30, imageUrl: '/food/watermelon.png' },
+      { id: 'f3',  label: bi('Apple', 'Epal'),                      category: 'veg_fruit', costRM: 1.5, calories: 95,  imageUrl: '/food/apple.png' },
+      // ----- carbs -----
+      { id: 'f9',  label: bi('Brown rice', 'Nasi Perang'),         category: 'carb',      costRM: 2,   calories: 215, imageUrl: '/food/brown_rice.png' },
+      { id: 'f16', label: bi('White rice', 'Nasi Putih'),          category: 'carb',      costRM: 1.5, calories: 200, imageUrl: '/food/white_rice.png' },
+      { id: 'f11', label: bi('Sweet potato', 'Keledek'),           category: 'carb',      costRM: 1.5, calories: 90,  imageUrl: '/food/sweet_potato.png' },
+      { id: 'f10', label: bi('Wholemeal bread', 'Roti Gandum Penuh'), category: 'carb',   costRM: 1.5, calories: 70,  imageUrl: '/food/wholemeal_bread.png' },
+      { id: 'f17', label: bi('Chapati', 'Capati'),                 category: 'carb',      costRM: 1.5, calories: 120, imageUrl: '/food/chapati.png' },
+      { id: 'f18', label: bi('Oats', 'Oat'),                       category: 'carb',      costRM: 1.5, calories: 150, imageUrl: '/food/oats.png' },
     ],
     requiresManualReview: true, maxPoints: 10,
   },

@@ -17,9 +17,13 @@ export default function HomePage() {
     <main className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 overflow-hidden rounded-2xl bg-[#0B2545] text-white shadow-sm">
         <div className="flex items-center justify-between px-5 py-4">
-          <div>
-            <p className="text-xs font-semibold tracking-wide text-white/60">{t('landing.eyebrow')}</p>
-            <p className="text-lg font-bold">{t('landing.orgName')}</p>
+         <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/she-day-logo.png" alt="Nestlé SHE Day" className="h-11 w-auto rounded-md bg-white px-2 py-1" />
+            <div>
+              <p className="text-xs font-semibold tracking-wide text-white/60">{t('landing.eyebrow')}</p>
+              <p className="text-lg font-bold">{t('landing.orgName')}</p>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <LanguageToggle variant="dark" />

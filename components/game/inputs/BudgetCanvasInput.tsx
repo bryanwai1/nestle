@@ -98,7 +98,7 @@ export function BudgetCanvasInput({
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex h-full flex-col gap-1.5 px-4 py-3 transition ${
+        className={`${className} relative flex h-full flex-col gap-1.5 px-6 pt-7 transition ${
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >

@@ -1,241 +1,139 @@
 // app/winner/page.tsx
 //
-// Full-screen celebration screen — intended to be opened by the admin on a
-// projector while teams watch. Pulls real-time scores from Supabase,
-// animates a podium reveal, plays a synthesized victory fanfare, and rains
-// confetti. No auth required — it's a read-only display surface.
+// Live "competition mode" standings screen — projected at the event.
+// Wired to useRealtimeLeaderboard, so rows reorder and scores tick up the
+// instant any team's score changes (the recalc trigger -> realtime -> here).
 
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { createClient } from '@/lib/supabase/client';
+import { useRealtimeLeaderboard } from '@/lib/hooks/useRealtimeLeaderboard';
 
-interface Team {
-  id: string;
-  team_number: number;
-  member_1_name: string;
-  member_2_name: string;
-  member_3_name: string;
-  current_total_score: number;
+const ROW_H = 76;
+
+function AnimatedScore({ value }: { value: number }) {
+  const [display, setDisplay] = useState(value);
+  const prev = useRef(value);
+  useEffect(() => {
+    const from = prev.current;
+    const to = value;
+    prev.current = value;
+    if (from === to) {
+      setDisplay(to);
+      return;
+    }
+    const start = performance.now();
+    const dur = 700;
+    let raf = 0;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / dur);
+      setDisplay(Math.round(from + (to - from) * p));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{display}</>;
 }
-
-// ──────────────────────────────────────────────────────────────────────────
-// Web Audio victory fanfare — pure synthesis, no external files needed
-// ──────────────────────────────────────────────────────────────────────────
-function playFanfare() {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-
-    const notes = [
-      // note frequency, start-time, duration
-      [523.25, 0.0, 0.15],   // C5
-      [659.25, 0.15, 0.15],  // E5
-      [783.99, 0.30, 0.15],  // G5
-      [1046.5, 0.45, 0.40],  // C6
-      [783.99, 0.85, 0.15],  // G5
-      [1046.5, 1.00, 0.60],  // C6 hold
-    ] as [number, number, number][];
-
-    notes.forEach(([freq, start, dur]) => {
-      const osc  = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-      gain.gain.setValueAtTime(0, ctx.currentTime + start);
-      gain.gain.linearRampToValueAtTime(0.3, ctx.currentTime + start + 0.02);
-      gain.gain.linearRampToValueAtTime(0, ctx.currentTime + start + dur);
-      osc.start(ctx.currentTime + start);
-      osc.stop(ctx.currentTime + start + dur + 0.01);
-    });
-  } catch {
-    // Audio not available (SSR / user gesture not met)
-  }
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// Confetti particle system (pure CSS via inline style generation)
-// ──────────────────────────────────────────────────────────────────────────
-const CONFETTI_COLORS = ['#E4002B', '#0B2545', '#fbbf24', '#34d399', '#60a5fa', '#f472b6'];
-
-function ConfettiLayer({ count = 100 }: { count?: number }) {
-  const particles = Array.from({ length: count }, (_, i) => ({
-    id: i,
-    color: CONFETTI_COLORS[i % CONFETTI_COLORS.length],
-    left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 3}s`,
-    duration: `${2.5 + Math.random() * 2}s`,
-    size: `${6 + Math.random() * 8}px`,
-    rotate: `${Math.random() * 360}deg`,
-  }));
-
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden z-10">
-      <style>{`
-        @keyframes confetti-fall {
-          0%   { transform: translateY(-20px) rotate(var(--rot)); opacity: 1; }
-          100% { transform: translateY(110vh) rotate(calc(var(--rot) + 720deg)); opacity: 0.2; }
-        }
-      `}</style>
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          style={{
-            position: 'absolute',
-            top: '-10px',
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            backgroundColor: p.color,
-            borderRadius: '2px',
-            animation: `confetti-fall ${p.duration} ${p.delay} linear infinite`,
-            '--rot': p.rotate,
-          } as React.CSSProperties}
-        />
-      ))}
-    </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────────────────────────
-// Podium bar heights  (1st = tallest)
-// ──────────────────────────────────────────────────────────────────────────
-const PODIUM_HEIGHTS = ['h-40', 'h-28', 'h-20'];
-const PODIUM_MEDALS  = ['🥇', '🥈', '🥉'];
-const PODIUM_COLORS  = [
-  'from-yellow-400 to-yellow-600 ring-yellow-300',
-  'from-slate-300 to-slate-500 ring-slate-200',
-  'from-orange-400 to-orange-600 ring-orange-300',
-];
-// Reorder so podium order is 2nd, 1st, 3rd (classic podium layout)
-const PODIUM_DISPLAY_ORDER = [1, 0, 2]; // indices into top-3 array
 
 export default function WinnerPage() {
-  const [teams, setTeams] = useState<Team[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [revealed, setRevealed] = useState(false);
-  const fanfireRef = useRef(false);
+  const { teams, loading } = useRealtimeLeaderboard();
 
-  useEffect(() => {
-    const supabase = createClient();
-
-    async function load() {
-      const { data } = await supabase
-        .from('teams')
-        .select('*')
-        .order('current_total_score', { ascending: false })
-        .limit(3);
-      setTeams((data as Team[]) ?? []);
-      setLoading(false);
-    }
-    load();
-
-    const channel = supabase
-      .channel('winner-leaderboard')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'teams' }, load)
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, []);
-
-  function handleReveal() {
-    setRevealed(true);
-    if (!fanfireRef.current) {
-      fanfireRef.current = true;
-      playFanfare();
-    }
-  }
-
-  const top3 = teams.slice(0, 3);
+  const ranked = [...teams].sort(
+    (a, b) => b.current_total_score - a.current_total_score || a.team_number - b.team_number
+  );
+  const rankOf = new Map(ranked.map((t, i) => [t.id, i]));
+  const domOrder = [...teams].sort((a, b) => a.team_number - b.team_number);
+  const max = Math.max(1, ...teams.map((t) => t.current_total_score));
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#0B2545]">
-      {/* Stars background */}
-      <div className="pointer-events-none absolute inset-0"
-        style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+    <div style={{ position: 'relative', minHeight: '100vh', overflow: 'hidden', background: '#08172E', color: '#fff' }}>
+      <style>{`
+        @keyframes wbeam1{0%,100%{transform:translate(0,0)}50%{transform:translate(8%,6%)}}
+        @keyframes wbeam2{0%,100%{transform:translate(0,0)}50%{transform:translate(-8%,8%)}}
+        @keyframes wpulse{0%{box-shadow:0 0 0 0 rgba(255,45,77,.7)}70%{box-shadow:0 0 0 14px rgba(255,45,77,0)}100%{box-shadow:0 0 0 0 rgba(255,45,77,0)}}
+        .wbeam{position:absolute;width:60%;height:200%;top:-50%;filter:blur(80px);opacity:.35;mix-blend-mode:screen;pointer-events:none}
+      `}</style>
 
-      {revealed && <ConfettiLayer count={120} />}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(120% 90% at 80% -10%,#12356b 0%,#0a1d3a 45%,#08152b 100%)' }} />
+      <div className="wbeam" style={{ left: '-10%', background: 'radial-gradient(closest-side,#E4002B,transparent)', animation: 'wbeam1 9s ease-in-out infinite' }} />
+      <div className="wbeam" style={{ right: '-10%', background: 'radial-gradient(closest-side,#2a7fff,transparent)', animation: 'wbeam2 11s ease-in-out infinite' }} />
 
-      <div className="relative z-20 flex min-h-screen flex-col items-center justify-end px-4 pb-0 pt-12">
-        {/* Title */}
-        <div className="mb-8 text-center">
-          <p className="text-xs font-bold uppercase tracking-widest text-[#E4002B]">
-            🏆 2026 Nestlé SHE Day Challenge
-          </p>
-          <h1
-            className="mt-2 text-4xl font-black text-white transition-all duration-700 sm:text-6xl"
-            style={{ textShadow: '0 0 40px rgba(228,0,43,0.5)' }}
-          >
-            {loading ? 'Loading…' : 'WINNERS'}
-          </h1>
+      <main style={{ position: 'relative', maxWidth: 1100, margin: '0 auto', padding: '40px 24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span style={{ fontSize: 40 }}>🏆</span>
+            <div>
+              <p style={{ margin: 0, fontSize: 13, fontWeight: 700, letterSpacing: 3, color: '#9fc0ff' }}>SHE DAY 2026</p>
+              <h1 style={{ margin: 0, fontSize: 34, fontWeight: 900, letterSpacing: -0.5 }}>Live Standings</h1>
+            </div>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 14, fontWeight: 800, letterSpacing: 1.5, background: 'rgba(228,0,43,.18)', border: '1px solid rgba(228,0,43,.5)', padding: '8px 16px', borderRadius: 24 }}>
+            <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#ff2d4d', animation: 'wpulse 1.4s infinite' }} />
+            LIVE
+          </div>
         </div>
 
         {loading ? (
-          <p className="mb-20 text-white/60">Fetching results…</p>
-        ) : !revealed ? (
-          <button
-            type="button"
-            onClick={handleReveal}
-            className="mb-32 animate-bounce rounded-2xl bg-[#E4002B] px-10 py-5 text-xl font-black text-white shadow-lg shadow-red-900 transition hover:scale-105"
-          >
-            🎉 Reveal the Winners!
-          </button>
+          <p style={{ textAlign: 'center', color: '#9bb4d8', padding: '80px 0' }}>Loading standings…</p>
+        ) : teams.length === 0 ? (
+          <p style={{ textAlign: 'center', color: '#9bb4d8', padding: '80px 0' }}>
+            No teams yet. Standings appear here as teams register and score.
+          </p>
         ) : (
-          <>
-            {/* Podium */}
-            <div className="flex w-full max-w-2xl items-end justify-center gap-3">
-              {PODIUM_DISPLAY_ORDER.map((teamIdx, displayPos) => {
-                const team = top3[teamIdx];
-                if (!team) return <div key={displayPos} className="flex-1" />;
-                const height = PODIUM_HEIGHTS[displayPos === 1 ? 0 : displayPos === 0 ? 1 : 2];
-                const colors = PODIUM_COLORS[displayPos === 1 ? 0 : displayPos === 0 ? 1 : 2];
-                const medal  = PODIUM_MEDALS[displayPos === 1 ? 0 : displayPos === 0 ? 1 : 2];
-                const rank   = displayPos === 1 ? 1 : displayPos === 0 ? 2 : 3;
-
-                return (
-                  <div key={team.id}
-                    className="flex flex-1 animate-[slideUp_0.8s_ease-out_forwards] flex-col items-center"
-                    style={{ animationDelay: `${displayPos * 0.25}s`, opacity: 0, '--tw-translate-y': '100px' } as React.CSSProperties}
+          <div style={{ position: 'relative', height: teams.length * ROW_H }}>
+            {domOrder.map((t) => {
+              const rank = rankOf.get(t.id) ?? 0;
+              const isTop1 = rank === 0, isTop2 = rank === 1, isTop3 = rank === 2;
+              const accent = isTop1 ? '#f5a623' : isTop2 ? '#cbd5e1' : isTop3 ? '#e7a878' : '#E4002B';
+              return (
+                <div
+                  key={t.id}
+                  style={{
+                    position: 'absolute', left: 0, right: 0, height: ROW_H - 10,
+                    transform: `translateY(${rank * ROW_H}px)`,
+                    transition: 'transform .85s cubic-bezier(.22,.8,.2,1)',
+                    display: 'grid', gridTemplateColumns: '56px 1fr 130px', alignItems: 'center', gap: 14,
+                    padding: '0 18px', borderRadius: 16,
+                    background: isTop1 ? 'linear-gradient(90deg,rgba(245,166,35,.22),rgba(245,166,35,.05))' : 'rgba(255,255,255,.05)',
+                    border: `1px solid ${isTop1 ? 'rgba(245,166,35,.6)' : 'rgba(255,255,255,.08)'}`,
+                    boxShadow: isTop1 ? '0 0 30px rgba(245,166,35,.25)' : 'none',
+                    backdropFilter: 'blur(4px)',
+                  }}
+                >
+                  <div
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, borderRadius: 12, fontWeight: 900, fontSize: 18,
+                      background: isTop1 ? 'linear-gradient(135deg,#f5c542,#e09b1a)' : isTop2 ? 'linear-gradient(135deg,#dfe6ef,#aab6c6)' : isTop3 ? 'linear-gradient(135deg,#e7a878,#c47a45)' : 'rgba(255,255,255,.1)',
+                      color: isTop1 ? '#3a2600' : isTop2 ? '#27303d' : isTop3 ? '#3a1e0a' : '#cfe0ff',
+                    }}
                   >
-                    {/* Team card above podium */}
-                    <div className={`mb-2 w-full rounded-2xl bg-white/10 p-3 text-center backdrop-blur ring-2 ${colors.split(' ').pop()}`}>
-                      <div className="text-3xl">{medal}</div>
-                      <p className="mt-1 text-sm font-black text-white">Team {team.team_number}</p>
-                      <p className="text-2xl font-black text-yellow-300 tabular-nums">{team.current_total_score} pts</p>
-                      <p className="mt-1 text-[10px] text-white/60 leading-tight">
-                        {team.member_1_name}<br />{team.member_2_name}<br />{team.member_3_name}
-                      </p>
+                    {rank + 1}
+                  </div>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      Team {t.team_number}
                     </div>
-                    {/* Podium block */}
-                    <div className={`w-full ${height} rounded-t-xl bg-gradient-to-b ${colors.split(' ').slice(0, 2).join(' ')} ring-2 ${colors.split(' ').pop()} flex items-center justify-center`}>
-                      <span className="text-3xl font-black text-white/80">#{rank}</span>
+                    <div style={{ fontSize: 12, color: '#9bb4d8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {t.member_1_name}, {t.member_2_name}, {t.member_3_name}
+                    </div>
+                    <div style={{ position: 'relative', height: 3, marginTop: 6, borderRadius: 3, background: 'rgba(255,255,255,.08)', overflow: 'hidden' }}>
+                      <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: `${Math.round((t.current_total_score / max) * 100)}%`, background: accent, transition: 'width .85s cubic-bezier(.22,.8,.2,1)' }} />
                     </div>
                   </div>
-                );
-              })}
-            </div>
-            <style>{`
-              @keyframes slideUp {
-                from { transform: translateY(80px); opacity: 0; }
-                to   { transform: translateY(0);    opacity: 1; }
-              }
-            `}</style>
-
-            {/* Floor strip */}
-            <div className="h-6 w-full max-w-2xl rounded-t-sm bg-white/10" />
-
-            {/* Replay sound button */}
-            <button
-              type="button"
-              onClick={playFanfare}
-              className="my-6 rounded-full bg-white/10 px-5 py-2 text-xs font-medium text-white/60 hover:bg-white/20"
-            >
-              🔊 Play fanfare again
-            </button>
-          </>
+                  <div style={{ textAlign: 'right', fontSize: 26, fontWeight: 900, fontVariantNumeric: 'tabular-nums' }}>
+                    <AnimatedScore value={t.current_total_score} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         )}
-      </div>
-    </main>
+
+        <p style={{ textAlign: 'center', marginTop: 28, fontSize: 12, letterSpacing: 2, color: '#7d97bf', fontWeight: 700 }}>
+          COMPETITION MODE · UPDATES IN REAL TIME
+        </p>
+      </main>
+    </div>
   );
 }

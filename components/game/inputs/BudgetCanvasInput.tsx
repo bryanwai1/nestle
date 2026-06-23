@@ -98,7 +98,7 @@ export function BudgetCanvasInput({
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex h-full flex-col gap-1.5 overflow-hidden p-2.5 transition ${SECTION_TINT[qid] ?? ''} ${
+        className={`${className} relative flex h-full flex-col gap-1.5 overflow-hidden px-4 py-3 transition ${SECTION_TINT[qid] ?? ''} ${
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
@@ -118,7 +118,7 @@ export function BudgetCanvasInput({
     <div>
 {/* Round plate: ½ / ¼ / ¼ cuts clipped to a circle */}
       <div className="mx-auto mb-4 w-full max-w-sm">
-        <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full border-[10px] border-slate-300 bg-white shadow-inner">
+        <div className="relative mx-auto aspect-square w-full overflow-hidden rounded-full bg-white shadow-inner ring-[10px] ring-inset ring-slate-300">
           <div className="grid h-full w-full grid-cols-2">
             <Section qid="veg_fruit" className="col-span-1 row-span-2 border-r-2 border-white" />
             <div className="col-span-1 grid h-full grid-rows-2">

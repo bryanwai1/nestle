@@ -10,6 +10,7 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { getModule } from '@/lib/game/questions';
 import { QuestionRunner } from '@/components/game/QuestionRunner';
 import { QRPrivacyFlow } from '@/components/game/QRPrivacyFlow';
+import { FreezeOverlay } from '@/components/game/FreezeOverlay';
 
 export default function ModulePlayPage({ params }: { params: { moduleId: string } }) {
   const { moduleId } = params;
@@ -39,6 +40,7 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
 
   return (
     <main className="px-4 py-8">
+      <FreezeOverlay />
       <div className="mx-auto mb-4 max-w-2xl">
         <Link href="/play" className="text-sm font-medium text-slate-400 hover:text-slate-600">
           ← {t('play.allModules')}

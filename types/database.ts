@@ -9,6 +9,7 @@ export type ResponseType =
   | 'multiple_choice'
   | 'video_identify'
   | 'video_avoid'
+  | 'video_identify_and_avoid'
   | 'media_upload'
   | 'hazard_canvas'
   | 'drag_sequence'

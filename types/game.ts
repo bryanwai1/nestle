@@ -71,7 +71,7 @@ export interface MultipleChoiceQuestion extends QuestionBase {
 }
 
 export interface VideoIdentifyQuestion extends QuestionBase {
-  responseType: 'video_identify' | 'video_avoid';
+  responseType: 'video_identify' | 'video_identify_and_avoid' | 'video_avoid';
   /** Fill-in-the-blank per wireframe annotation on the original MCQ mockup.
    * Graded by keyword match (any one is sufficient). Includes BOTH English
    * and Malay keywords in one flat list — a team typing in the language
@@ -197,6 +197,7 @@ export type ResponseDataByType = {
   multiple_choice: { selectedIndex: number };
   video_identify: { text: string };
   video_avoid: { text: string };
+  video_identify_and_avoid: { text: string };
   media_upload: { uploadedAt: string };
   hazard_canvas: { taps: Array<{ x: number; y: number }> };
   drag_sequence: { order: string[] };

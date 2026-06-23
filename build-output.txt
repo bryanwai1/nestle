@@ -1,0 +1,42 @@
+
+> nestle-she-day-2026@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/12) ...
+   Generating static pages (3/12) 
+   Generating static pages (6/12) 
+   Generating static pages (9/12) 
+ ✓ Generating static pages (12/12)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    2.57 kB         169 kB
+├ ○ /_not-found                          873 B          88.2 kB
+├ ƒ /admin/answer-keys                   2.18 kB         155 kB
+├ ƒ /admin/dashboard                     4.93 kB         166 kB
+├ ○ /admin/login                         1.24 kB         154 kB
+├ ƒ /admin/mental-health                 1.76 kB         155 kB
+├ ƒ /api/speed-bonus                     0 B                0 B
+├ ○ /mental-health-assessment            7.19 kB         160 kB
+├ ○ /play                                1.89 kB         176 kB
+├ ƒ /play/[moduleId]                     15.5 kB         190 kB
+└ ○ /winner                              2.51 kB         156 kB
++ First Load JS shared by all            87.3 kB
+  ├ chunks/117-345467cefe42d6ff.js       31.7 kB
+  ├ chunks/fd9d1056-3054852c68a3097a.js  53.6 kB
+  └ other shared chunks (total)          1.95 kB
+
+
+ƒ Middleware                             82.8 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

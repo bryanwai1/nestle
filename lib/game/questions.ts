@@ -151,77 +151,56 @@ export const QUESTIONS: Record<string, GameQuestion> = {
     expectedValue: 3, tolerance: 0,
     requiresManualReview: false, maxPoints: 10,
   },
-  q6: {
+q6: {
     id: 'q6', moduleId: 'module-1-safe-driving', order: 6, responseType: 'video_identify',
-    prompt: bi('Watch the video. What is wrong here?', 'Tonton video ini. Apakah masalahnya di sini?'),
-    videoUrl: '/media/safe-driving/q6-fatigue.mp4', // TODO: organizer to supply dashcam clip
-    acceptedKeywords: ['dozing off', 'dozing', 'sleeping', 'asleep', 'fatigue', 'drowsy', 'drowsiness', 'mengantuk', 'tidur', 'keletihan', 'penat'],
-    requiresManualReview: true, maxPoints: 10,
+    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q6-fatigue.mp4',
+    acceptedKeywords: [
+      'dozing off', 'dozing', 'sleeping', 'asleep', 'fatigue', 'drowsy', 'drowsiness', 'mengantuk', 'tidur', 'keletihan', 'penat',
+      'manage fatigue', 'sufficient rest', 'rest', 'well-rested', 'well rested', 'take breaks', 'fatigue management', 'urus keletihan', 'rehat secukupnya', 'berehat', 'cukup rehat'
+    ],
+    requiresManualReview: true, maxPoints: 20,
   },
   q7: {
-    id: 'q7', moduleId: 'module-1-safe-driving', order: 7, responseType: 'video_avoid',
-    prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
-    videoUrl: '/media/safe-driving/q6-fatigue.mp4', // same clip as q6
-    acceptedKeywords: ['manage fatigue', 'sufficient rest', 'rest', 'well-rested', 'well rested', 'take breaks', 'fatigue management', 'urus keletihan', 'rehat secukupnya', 'berehat', 'cukup rehat'],
-    requiresManualReview: true, maxPoints: 10,
+    id: 'q7', moduleId: 'module-1-safe-driving', order: 7, responseType: 'video_identify',
+    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q8-seatbelt.mp4',
+    acceptedKeywords: [
+      'not wearing seatbelt', 'no seatbelt', 'seatbelt', 'seat belt', 'tidak pakai tali pinggang keledar', 'tiada tali pinggang keledar', 'tali pinggang keledar',
+      'fasten seatbelt', 'wear seatbelt', 'wear seat belt', 'buckle up', 'put on seatbelt', 'pakai tali pinggang keledar', 'ikat tali pinggang keledar'
+    ],
+    requiresManualReview: true, maxPoints: 20,
   },
   q8: {
     id: 'q8', moduleId: 'module-1-safe-driving', order: 8, responseType: 'video_identify',
-    prompt: bi('Watch the video. What is wrong here?', 'Tonton video ini. Apakah masalahnya di sini?'),
-    videoUrl: '/media/safe-driving/q8-seatbelt.mp4', // TODO
-    acceptedKeywords: ['not wearing seatbelt', 'no seatbelt', 'seatbelt', 'seat belt', 'tidak pakai tali pinggang keledar', 'tiada tali pinggang keledar', 'tali pinggang keledar'],
-    requiresManualReview: true, maxPoints: 10,
+    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q10-distracted.mp4',
+    acceptedKeywords: [
+      'distracted', 'texting', 'handphone', 'mobile', 'phone', 'not paying attention', 'using phone', 'leka', 'bertelefon', 'guna telefon', 'tidak fokus',
+      'not using handphone', 'focus', 'pay attention', 'no handphone', 'not texting', 'put phone away', 'avoid phone', 'jangan guna telefon', 'fokus', 'beri perhatian', 'tumpukan perhatian'
+    ],
+    requiresManualReview: true, maxPoints: 20,
   },
   q9: {
-    id: 'q9', moduleId: 'module-1-safe-driving', order: 9, responseType: 'video_avoid',
-    prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
-    videoUrl: '/media/safe-driving/q8-seatbelt.mp4', // same clip as q8
-    acceptedKeywords: ['fasten seatbelt', 'wear seatbelt', 'wear seat belt', 'buckle up', 'put on seatbelt', 'pakai tali pinggang keledar', 'ikat tali pinggang keledar'],
-    requiresManualReview: true, maxPoints: 10,
+    id: 'q9', moduleId: 'module-1-safe-driving', order: 9, responseType: 'video_identify',
+    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q12-reckless.mp4',
+    acceptedKeywords: [
+      'rushing', 'reckless driving', 'reckless', 'unsafe driving', 'dangerous', 'speeding', 'tergesa-gesa', 'memandu cuai', 'memandu merbahaya', 'laju',
+      'drive safely', 'avoid reckless driving', 'slow down', 'do not rush', "don't rush", 'memandu dengan selamat', 'elak memandu cuai', 'perlahankan'
+    ],
+    requiresManualReview: true, maxPoints: 20,
   },
   q10: {
     id: 'q10', moduleId: 'module-1-safe-driving', order: 10, responseType: 'video_identify',
-    prompt: bi('Watch the video. What is wrong here?', 'Tonton video ini. Apakah masalahnya di sini?'),
-    videoUrl: '/media/safe-driving/q10-distracted.mp4', // TODO
-    acceptedKeywords: ['distracted', 'texting', 'handphone', 'mobile', 'phone', 'not paying attention', 'using phone', 'leka', 'bertelefon', 'guna telefon', 'tidak fokus'],
-    requiresManualReview: true, maxPoints: 10,
+    prompt: bi('Watch the video. 1) What is wrong here? 2) How can the driver avoid this?', 'Tonton video ini. 1) Apakah masalahnya di sini? 2) Bagaimana pemandu boleh elakkan masalah ini?'),
+    videoUrl: '/media/safe-driving/q14-mirror.mp4',
+    acceptedKeywords: [
+      'not checking mirror', 'side mirror', 'no signal', 'no indicator', 'blind spot', 'not signaling', 'tidak periksa cermin', 'cermin sisi', 'tiada isyarat', 'bintik buta',
+      'scan side mirror', 'give signal', 'give indicator', 'check mirrors', 'use indicator', 'use signal', 'periksa cermin sisi', 'beri isyarat', 'guna lampu isyarat'
+    ],
+    requiresManualReview: true, maxPoints: 20,
   },
-  q11: {
-    id: 'q11', moduleId: 'module-1-safe-driving', order: 11, responseType: 'video_avoid',
-    prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
-    videoUrl: '/media/safe-driving/q10-distracted.mp4', // same clip as q10
-    acceptedKeywords: ['not using handphone', 'focus', 'pay attention', 'no handphone', 'not texting', 'put phone away', 'avoid phone', 'jangan guna telefon', 'fokus', 'beri perhatian', 'tumpukan perhatian'],
-    requiresManualReview: true, maxPoints: 10,
-  },
-  q12: {
-    id: 'q12', moduleId: 'module-1-safe-driving', order: 12, responseType: 'video_identify',
-    prompt: bi('Watch the video. What is wrong here?', 'Tonton video ini. Apakah masalahnya di sini?'),
-    videoUrl: '/media/safe-driving/q12-reckless.mp4', // TODO
-    acceptedKeywords: ['rushing', 'reckless driving', 'reckless', 'unsafe driving', 'dangerous', 'speeding', 'tergesa-gesa', 'memandu cuai', 'memandu merbahaya', 'laju'],
-    requiresManualReview: true, maxPoints: 10,
-  },
-  q13: {
-    id: 'q13', moduleId: 'module-1-safe-driving', order: 13, responseType: 'video_avoid',
-    prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
-    videoUrl: '/media/safe-driving/q12-reckless.mp4', // same clip as q12
-    acceptedKeywords: ['drive safely', 'avoid reckless driving', 'slow down', 'do not rush', "don't rush", 'memandu dengan selamat', 'elak memandu cuai', 'perlahankan'],
-    requiresManualReview: true, maxPoints: 10,
-  },
-  q14: {
-    id: 'q14', moduleId: 'module-1-safe-driving', order: 14, responseType: 'video_identify',
-    prompt: bi('Watch the video. What is wrong here?', 'Tonton video ini. Apakah masalahnya di sini?'),
-    videoUrl: '/media/safe-driving/q14-mirror.mp4', // TODO
-    acceptedKeywords: ['not checking mirror', 'side mirror', 'no signal', 'no indicator', 'blind spot', 'not signaling', 'tidak periksa cermin', 'cermin sisi', 'tiada isyarat', 'bintik buta'],
-    requiresManualReview: true, maxPoints: 10,
-  },
-  q15: {
-    id: 'q15', moduleId: 'module-1-safe-driving', order: 15, responseType: 'video_avoid',
-    prompt: bi('How can the driver avoid this?', 'Bagaimana pemandu boleh elakkan masalah ini?'),
-    videoUrl: '/media/safe-driving/q14-mirror.mp4', // same clip as q14
-    acceptedKeywords: ['scan side mirror', 'give signal', 'give indicator', 'check mirrors', 'use indicator', 'use signal', 'periksa cermin sisi', 'beri isyarat', 'guna lampu isyarat'],
-    requiresManualReview: true, maxPoints: 10,
-  },
-
   // ===================== MODULE 2 — STF =====================
   q16: {
     id: 'q16', moduleId: 'module-2-stf', order: 16, responseType: 'media_upload',

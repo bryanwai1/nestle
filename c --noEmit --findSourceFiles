@@ -1,0 +1,25 @@
+[1mdiff --git a/lib/game/scoring.ts b/lib/game/scoring.ts[m
+[1mindex 3d3f3ab..3b6723e 100644[m
+[1m--- a/lib/game/scoring.ts[m
+[1m+++ b/lib/game/scoring.ts[m
+[36m@@ -87,6 +87,7 @@[m [mexport function autoGrade<T extends GameQuestion>([m
+     }[m
+ [m
+     case 'video_identify':[m
+[32m+[m[32m    case 'video_identify_and_avoid':[m
+     case 'video_avoid': {[m
+       // Keyword-matched, not exact — still objective enough to auto-grade,[m
+       // but flagged with isCorrect possibly wrong on close phrasing, so we[m
+[1mdiff --git a/types/game.ts b/types/game.ts[m
+[1mindex 7d01788..9ec86c4 100644[m
+[1m--- a/types/game.ts[m
+[1m+++ b/types/game.ts[m
+[36m@@ -71,7 +71,7 @@[m [mexport interface MultipleChoiceQuestion extends QuestionBase {[m
+ }[m
+ [m
+ export interface VideoIdentifyQuestion extends QuestionBase {[m
+[31m-  responseType: 'video_identify' | 'video_avoid';[m
+[32m+[m[32m  responseType: 'video_identify' | 'video_identify_and_avoid' | 'video_avoid';[m
+   /** Fill-in-the-blank per wireframe annotation on the original MCQ mockup.[m
+    * Graded by keyword match (any one is sufficient). Includes BOTH English[m
+    * and Malay keywords in one flat list — a team typing in the language[m

@@ -8,6 +8,7 @@ import { LiveLeaderboardTicker } from '@/components/admin/LiveLeaderboardTicker'
 import { SpeedBonusToggle } from '@/components/admin/SpeedBonusToggle';
 import { MentalHealthAggregateCard } from '@/components/admin/MentalHealthAggregateCard';
 import { TeamAnswersBoard } from '@/components/admin/TeamAnswersBoard';
+import { FreezeToggle } from '@/components/admin/FreezeToggle';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -17,6 +18,13 @@ export default function AdminDashboardPage() {
     await supabase.auth.signOut();
     router.push('/admin/login');
   }
+
+  const navLinks = [
+    { href: '/admin/preview', label: '👁 Preview questions' },
+    { href: '/admin/answer-keys', label: '🔑 Answer keys' },
+    { href: '/admin/mental-health', label: '💙 Wellbeing (manager)' },
+    { href: '/winner', label: '🏆 Winner screen', external: true },
+  ];
 
   return (
     <div className="min-h-screen bg-[#070f1f] text-white">
@@ -39,22 +47,26 @@ export default function AdminDashboardPage() {
                 Event Coordination Dashboard
               </h1>
             </div>
-            <div className="flex items-center gap-2">
+            <button
+              onClick={signOut}
+              className="rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5"
+            >
+              Sign out
+            </button>
+          </div>
+
+          {/* Quick nav */}
+          <div className="mt-4 flex flex-wrap gap-2">
+            {navLinks.map((l) => (
               <a
-                href="/winner"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 rounded-xl bg-[#E4002B] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#E4002B]/30 transition hover:bg-[#c4001f] hover:shadow-[#E4002B]/50"
+                key={l.href}
+                href={l.href}
+                {...(l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                className="rounded-xl border border-white/15 bg-white/5 px-3.5 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
               >
-                🏆 Winner Screen
+                {l.label}
               </a>
-              <button
-                onClick={signOut}
-                className="rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5"
-              >
-                Sign out
-              </button>
-            </div>
+            ))}
           </div>
         </div>
 
@@ -64,6 +76,7 @@ export default function AdminDashboardPage() {
             <LiveLeaderboardTicker />
           </div>
           <div className="space-y-4">
+            <FreezeToggle />
             <SpeedBonusToggle />
             <MentalHealthAggregateCard />
           </div>

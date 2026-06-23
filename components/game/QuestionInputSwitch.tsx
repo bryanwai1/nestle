@@ -20,7 +20,7 @@ import { BudgetCanvasInput } from './inputs/BudgetCanvasInput';
 import { ExactSequenceInput } from './inputs/ExactSequenceInput';
 import { ClassificationMatrixInput } from './inputs/ClassificationMatrixInput';
 
-export interface QuestionInputProps<T extends GameQuestion['responseType']> {
+export interface QuestionInputProps<T extends keyof ResponseDataByType> {
   teamId: string;
   disabled: boolean;
   onAnswer: (data: ResponseDataByType[T], mediaUrl?: string) => void;
@@ -41,6 +41,7 @@ export function QuestionInputSwitch({
     case 'multiple_choice':
       return <MultipleChoiceInput question={question} teamId={teamId} disabled={disabled} onAnswer={onAnswer} />;
     case 'video_identify':
+    case 'video_identify_and_avoid':
     case 'video_avoid':
       return <VideoFillBlankInput question={question} teamId={teamId} disabled={disabled} onAnswer={onAnswer} />;
     case 'media_upload':

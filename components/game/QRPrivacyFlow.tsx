@@ -1,15 +1,15 @@
 // components/game/QRPrivacyFlow.tsx
 //
-// Module 4 deliberately does NOT go through QuestionRunner / game_responses
-// at all. The brief is explicit that this needs to be anonymous — so there
-// is no team_id anywhere in this flow. The QR code just routes a phone to
-// /mental-health-assessment, a standalone route with its own write path
-// straight into anonymous_mental_health_metrics (see that page + the schema
-// note in 0001_init.sql for why the table has no identifying column).
+// Module 4 — wellbeing check-in. Confidential-to-management (NOT anonymous):
+// each person enters their name on the assessment page; results are readable
+// only by a manager with the password (see migration 0007). The QR sends
+// other phones to PRODUCTION so a preview deploy can never break the link;
+// the "Do my own check-in" button opens the same form on this device for the
+// person holding the team phone.
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { QRCodeSVG } from 'qrcode.react';
 import { createClient } from '@/lib/supabase/client';
@@ -20,15 +20,26 @@ import type { Database } from '@/types/database';
 
 type Team = Database['public']['Tables']['teams']['Row'];
 
+// Hardcoded so the QR always points at the live site, even when this screen
+// is shown from a Vercel preview URL (those are login-gated and would 404 a
+// scanning phone). Update if the production domain ever changes.
+const PROD_BASE = 'https://nestle-lovat.vercel.app';
+
 export function QRPrivacyFlow({ team }: { team: Team }) {
-  const [origin, setOrigin] = useState('');
   const [confirmedDone, setConfirmedDone] = useState(false);
   const batchSessionId = `${new Date().toISOString().slice(0, 10)}-${team.session_group}`;
   const { lang, t, tx } = useLanguage();
 
-  useEffect(() => setOrigin(window.location.origin), []);
-
   const timer = useGameTimer({ durationSeconds: 5 * 60 });
+
+  const query = `batch=${batchSessionId}&lang=${lang}`;
+  const assessmentUrl = `${PROD_BASE}/mental-health-assessment?${query}`; // for OTHER phones (QR)
+  const ownCheckinPath = `/mental-health-assessment?${query}`; // for THIS device
+
+  const note = {
+    en: 'Scan to do a private wellbeing check-in. Your answers are shared only with your manager for support — not with your teammates.',
+    bm: 'Imbas untuk semakan kesejahteraan secara peribadi. Jawapan anda dikongsi hanya dengan pengurus anda untuk sokongan — bukan dengan rakan sepasukan.',
+  };
 
   async function finishModule() {
     const supabase = createClient();
@@ -45,10 +56,6 @@ export function QRPrivacyFlow({ team }: { team: Team }) {
   }
 
   const nextModule = MODULES.find((m) => m.index === 5);
-  // Carries the team's current language choice through the QR code, so the
-  // private assessment opens already set to whichever language they were
-  // playing in — no need to toggle again on a second device.
-  const assessmentUrl = origin ? `${origin}/mental-health-assessment?batch=${batchSessionId}&lang=${lang}` : '';
 
   if (confirmedDone) {
     return (
@@ -71,13 +78,20 @@ export function QRPrivacyFlow({ team }: { team: Team }) {
     <div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm">
       <p className="text-xs font-semibold uppercase tracking-wide text-[#0B2545]/60">{t('mh.moduleLabel')}</p>
       <h2 className="mt-1 text-xl font-semibold text-slate-900">{t('mh.privateTitle')}</h2>
-      <p className="mt-2 text-sm text-slate-500">{t('mh.privateDescription')}</p>
+      <p className="mt-2 text-sm text-slate-500">{tx(note)}</p>
 
       <div className="my-6 flex justify-center">
         <div className="rounded-2xl border-2 border-dashed border-slate-200 p-4">
-          {assessmentUrl ? <QRCodeSVG value={assessmentUrl} size={180} /> : <div className="h-[180px] w-[180px]" />}
+          <QRCodeSVG value={assessmentUrl} size={180} />
         </div>
       </div>
+
+      <Link
+        href={ownCheckinPath}
+        className="mb-4 block w-full rounded-xl border border-[#0B2545] px-5 py-3 text-sm font-semibold text-[#0B2545] transition hover:bg-[#0B2545]/5"
+      >
+        {tx({ en: 'Do my own check-in on this phone', bm: 'Buat semakan saya di telefon ini' })}
+      </Link>
 
       <div
         className={`mb-4 inline-block rounded-full px-4 py-1.5 text-sm font-semibold tabular-nums ${

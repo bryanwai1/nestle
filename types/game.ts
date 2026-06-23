@@ -134,7 +134,7 @@ export interface SubjectiveSelectQuestion extends QuestionBase {
 export interface CategorizedDropzoneQuestion extends QuestionBase {
   responseType: 'categorized_dropzone';
   categories: Array<{ id: string; label: Text }>;
-  items: Array<{ id: string; label: Text; correctCategory: string }>;
+  items: Array<{ id: string; label: Text; correctCategory: string; imageUrl?: string }>; imageUrl?: string;
 }
 
 export interface MathInputQuestion extends QuestionBase {
@@ -170,7 +170,7 @@ export interface ExactSequenceQuestion extends QuestionBase {
 export interface ClassificationMatrixQuestion extends QuestionBase {
   responseType: 'classification_matrix';
   categories: Array<{ id: string; label: Text }>;
-  items: Array<{ id: string; label: Text; correctCategory: string }>;
+  items: Array<{ id: string; label: Text; correctCategory: string; imageUrl?: string }>; imageUrl?: string;
 }
 
 export type GameQuestion =

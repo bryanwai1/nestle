@@ -130,7 +130,14 @@ export function BoxSort({
         draggingItem === it.id ? 'border-[#0B2545] bg-[#0B2545]/5 opacity-40' : 'border-slate-300 bg-white text-slate-700'
       }`}
     >
-      {tx(it.label)}
+      {it.imageUrl ? (
+        <span className="flex items-center gap-2">
+          <img src={it.imageUrl} alt="" className="h-9 w-9 shrink-0 rounded-md object-contain" />
+          <span>{tx(it.label)}</span>
+        </span>
+      ) : (
+        tx(it.label)
+      )}
     </button>
   );
 

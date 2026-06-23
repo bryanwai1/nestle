@@ -5,9 +5,9 @@
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { LiveLeaderboardTicker } from '@/components/admin/LiveLeaderboardTicker';
-import { SubmissionsPipeline } from '@/components/admin/SubmissionsPipeline';
 import { SpeedBonusToggle } from '@/components/admin/SpeedBonusToggle';
 import { MentalHealthAggregateCard } from '@/components/admin/MentalHealthAggregateCard';
+import { TeamAnswersBoard } from '@/components/admin/TeamAnswersBoard';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -19,41 +19,65 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">SHE Day 2026</p>
-          <h1 className="text-xl font-bold text-slate-900">Event Coordination Dashboard</h1>
-        </div>
-        <div className="flex items-center gap-2">
-          <a
-            href="/winner"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-xl bg-[#E4002B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#c4001f]"
-          >
-            🏆 Winner Screen
-          </a>
-          <button onClick={signOut} className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50">
-            Sign out
-          </button>
-        </div>
+    <div className="min-h-screen bg-[#070f1f] text-white">
+      {/* Ambient glow */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#E4002B]/20 blur-[120px]" />
+        <div className="absolute right-0 top-40 h-96 w-96 rounded-full bg-[#2a7fff]/20 blur-[120px]" />
       </div>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <LiveLeaderboardTicker />
+      <main className="relative mx-auto max-w-7xl px-4 py-8">
+        {/* Header */}
+        <div className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-r from-[#0B2545] to-[#0a1d3a] p-5 shadow-2xl">
+          <div className="mb-3 h-1 w-full animate-pulse rounded-full bg-gradient-to-r from-[#E4002B] via-amber-400 to-[#2a7fff]" />
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-sky-300/70">
+                SHE Day 2026
+              </p>
+              <h1 className="text-2xl font-black tracking-tight text-white">
+                Event Coordination Dashboard
+              </h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <a
+                href="/winner"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-xl bg-[#E4002B] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#E4002B]/30 transition hover:bg-[#c4001f] hover:shadow-[#E4002B]/50"
+              >
+                🏆 Winner Screen
+              </a>
+              <button
+                onClick={signOut}
+                className="rounded-xl border border-white/15 px-4 py-2 text-sm font-medium text-slate-300 transition hover:bg-white/5"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
         </div>
-        <div className="space-y-4">
-          <SpeedBonusToggle />
-          <MentalHealthAggregateCard />
-        </div>
-      </div>
 
-      <section>
-        <h2 className="mb-3 text-lg font-semibold text-slate-900">Submissions Pipeline</h2>
-        <SubmissionsPipeline />
-      </section>
-    </main>
+        {/* Top row: leaderboard + side cards */}
+        <div className="mb-8 grid grid-cols-1 gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <LiveLeaderboardTicker />
+          </div>
+          <div className="space-y-4">
+            <SpeedBonusToggle />
+            <MentalHealthAggregateCard />
+          </div>
+        </div>
+
+        {/* Per-team answers */}
+        <section>
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-5 w-1.5 rounded-full bg-[#E4002B]" />
+            <h2 className="text-lg font-bold text-white">Team Answers &amp; Grading</h2>
+          </div>
+          <TeamAnswersBoard />
+        </section>
+      </main>
+    </div>
   );
 }

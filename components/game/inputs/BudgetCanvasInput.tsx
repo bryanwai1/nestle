@@ -102,7 +102,7 @@ export function BudgetCanvasInput({
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
-<p className="text-[10px] font-bold uppercase tracking-wide text-slate-700/80">{tx(q.label)}</p>        {isHover && (
+{null && <p>{tx(q.label)}</p>}        {isHover && (
           <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
             drop here
           </span>

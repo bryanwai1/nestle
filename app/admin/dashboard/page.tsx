@@ -23,6 +23,7 @@ export default function AdminDashboardPage() {
     { href: '/admin/preview', label: '👁 Preview questions' },
     { href: '/admin/answer-keys', label: '🔑 Answer keys' },
     { href: '/admin/mental-health', label: '💙 Wellbeing (manager)' },
+    { href: '/leaderboard', label: '🐍 Live Leaderboard', external: true },
     { href: '/winner', label: '🏆 Winner screen', external: true },
   ];
 

@@ -88,7 +88,10 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
     const confetti: { x: number; y: number; vx: number; vy: number; rot: number; vr: number; color: string; size: number; life: number }[] = [];
     const floats: { x: number; y: number; vy: number; life: number; text: string; color: string }[] = [];
     const sparkles: { x: number; y: number; life: number; size: number }[] = [];
-    const bokeh = Array.from({ length: 18 }, () => ({ x: Math.random() * 1600, y: Math.random() * 900, r: 60 + Math.random() * 160, dx: (Math.random() - .5) * .25, dy: (Math.random() - .5) * .25, hue: Math.random() * 360 }));
+    // ---- jungle background layers (normalized 0..1 coords, scale with screen) ----
+    const fireflies = Array.from({ length: 26 }, () => ({ x: Math.random(), y: Math.random(), ph: Math.random() * 6.28, sp: 0.2 + Math.random() * 0.5, drift: Math.random() * 6.28 }));
+    const floatLeaves = Array.from({ length: 14 }, () => ({ x: Math.random(), y: Math.random(), size: 14 + Math.random() * 22, rot: Math.random() * 6.28, vr: (Math.random() - .5) * 0.01, vy: 0.0004 + Math.random() * 0.0006, sway: Math.random() * 6.28, hue: 95 + Math.random() * 45 }));
+    const vines = [0.05, 0.20, 0.80, 0.95].map((vx, i) => ({ x: vx, len: 0.30 + Math.random() * 0.24, ph: i * 1.3, side: i < 2 ? -1 : 1 }));
 
     const TOP = 96, BOTTOM = 56, LEFT = 150, RIGHT_PAD = 230, SEG = 9, MIN_LEN = 130;
 
@@ -115,17 +118,77 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
 
     function stroke(pts: number[][]) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); ctx.stroke(); }
     function roundRect(x: number, y: number, w: number, h: number, r: number) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+    function drawLeaf(x: number, y: number, size: number, angle: number, hue: number, alpha: number) {
+      ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.globalAlpha = alpha;
+      const g = ctx.createLinearGradient(0, -size, 0, size);
+      g.addColorStop(0, `hsl(${hue},58%,52%)`); g.addColorStop(1, `hsl(${hue},64%,28%)`);
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(0, -size);
+      ctx.quadraticCurveTo(size * 0.72, -size * 0.1, 0, size);
+      ctx.quadraticCurveTo(-size * 0.72, -size * 0.1, 0, -size);
+      ctx.fill();
+      ctx.globalAlpha = alpha * 0.5; ctx.strokeStyle = `hsl(${hue},45%,22%)`; ctx.lineWidth = Math.max(1, size * 0.06);
+      ctx.beginPath(); ctx.moveTo(0, -size * 0.9); ctx.lineTo(0, size * 0.9); ctx.stroke();
+      ctx.restore();
+    }
 
     function drawBG() {
-      ctx.fillStyle = '#07152b'; ctx.fillRect(0, 0, W, H);
+      const bg = ctx.createLinearGradient(0, 0, 0, H);
+      bg.addColorStop(0, '#0c4030'); bg.addColorStop(0.55, '#08291e'); bg.addColorStop(1, '#04150d');
+      ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+      // soft light rays from the canopy
       ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      bokeh.forEach((b) => {
-        b.x += b.dx; b.y += b.dy; b.hue += 0.1;
-        if (b.x < -200) b.x = W + 200; if (b.x > W + 200) b.x = -200;
-        if (b.y < -200) b.y = H + 200; if (b.y > H + 200) b.y = -200;
-        const g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
-        g.addColorStop(0, `hsla(${b.hue},70%,55%,0.10)`); g.addColorStop(1, 'transparent');
-        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 7); ctx.fill();
+      for (let i = 0; i < 4; i++) {
+        const rx = (0.18 + i * 0.23) * W + Math.sin(t * 0.2 + i) * 40;
+        const a = Math.max(0, 0.045 + 0.025 * Math.sin(t * 0.5 + i));
+        const grd = ctx.createLinearGradient(rx, 0, rx + 140, H);
+        grd.addColorStop(0, `rgba(190,255,205,${a})`); grd.addColorStop(1, 'transparent');
+        ctx.fillStyle = grd; ctx.beginPath(); ctx.moveTo(rx - 60, 0); ctx.lineTo(rx + 60, 0); ctx.lineTo(rx + 240, H); ctx.lineTo(rx - 110, H); ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+
+      // corner foliage that gently breathes
+      const sway = Math.sin(t * 0.6) * 0.06;
+      drawLeaf(W * 0.02, 0, 155, 0.6 + sway, 120, 0.5);
+      drawLeaf(W * 0.11, -10, 120, 1.0 + sway, 132, 0.42);
+      drawLeaf(W, H * 0.04, 165, 2.5 - sway, 120, 0.5);
+      drawLeaf(W * 0.95, -10, 120, 2.1 - sway, 132, 0.42);
+      drawLeaf(0, H, 150, -0.7 - sway, 126, 0.4);
+      drawLeaf(W, H, 150, 3.8 + sway, 126, 0.4);
+
+      // hanging vines with little leaves
+      vines.forEach((v) => {
+        const vx = v.x * W, segs = 10, L = v.len * H;
+        ctx.strokeStyle = 'rgba(70,130,80,0.5)'; ctx.lineWidth = 3; ctx.beginPath();
+        for (let s = 0; s <= segs; s++) {
+          const yy = (s / segs) * L, xx = vx + Math.sin(t * 0.8 + v.ph + s * 0.5) * 10 * (s / segs);
+          s ? ctx.lineTo(xx, yy) : ctx.moveTo(xx, yy);
+        }
+        ctx.stroke();
+        for (let s = 2; s <= segs; s += 2) {
+          const yy = (s / segs) * L, xx = vx + Math.sin(t * 0.8 + v.ph + s * 0.5) * 10 * (s / segs);
+          drawLeaf(xx, yy, 12, v.side * 1.2 + Math.sin(t + s) * 0.12, 115, 0.6);
+        }
+      });
+
+      // leaves drifting down
+      floatLeaves.forEach((l) => {
+        l.y += l.vy; l.rot += l.vr; if (l.y > 1.12) { l.y = -0.12; l.x = Math.random(); }
+        const xx = (l.x + Math.sin(t * 0.5 + l.sway) * 0.02) * W, yy = l.y * H;
+        drawLeaf(xx, yy, l.size, l.rot + Math.sin(t * 0.6 + l.sway) * 0.3, l.hue, 0.5);
+      });
+
+      // glowing fireflies
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      fireflies.forEach((f) => {
+        const xx = (f.x + Math.sin(t * f.sp + f.drift) * 0.03) * W;
+        const yy = (f.y + Math.cos(t * f.sp * 0.8 + f.drift) * 0.03) * H;
+        const glow = 0.4 + 0.6 * (0.5 + 0.5 * Math.sin(t * 2 + f.ph));
+        const g = ctx.createRadialGradient(xx, yy, 0, xx, yy, 16);
+        g.addColorStop(0, `rgba(220,255,140,${0.5 * glow})`); g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.arc(xx, yy, 16, 0, 7); ctx.fill();
+        ctx.fillStyle = `rgba(240,255,180,${glow})`; ctx.beginPath(); ctx.arc(xx, yy, 2.4, 0, 7); ctx.fill();
       });
       ctx.restore();
     }
@@ -269,7 +332,7 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
   const empty = !loading && (teams?.length ?? 0) === 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#07152b] text-white">
+    <div className="fixed inset-0 z-50 bg-[#06231a] text-white">
       <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-3">
           <span className="flex h-9 items-center rounded-lg bg-white px-3 text-[15px] font-black text-[#0b2545]">Nestl&eacute;</span>

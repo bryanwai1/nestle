@@ -57,7 +57,7 @@ export default function HomePage() {
       {/* Top bar */}
       <div className="mb-5 flex items-center justify-between">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/she-day-logo.png/image001.png" alt="Nestlé SHE Day" className="h-9 w-auto rounded-xl bg-white px-3 py-2 shadow-md ring-1 ring-black/5" />
+        <img src="/she-day-logo.png/image001.png" alt="Nestlé SHE Day" className="h-9 w-auto [filter:drop-shadow(0_0_6px_rgba(255,255,255,0.9))_drop-shadow(0_0_12px_rgba(255,255,255,0.6))]" />
         <div className="flex items-center gap-2">
           <LanguageToggle />
           {!loading && (

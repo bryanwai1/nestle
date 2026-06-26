@@ -104,7 +104,8 @@ export interface HazardCanvasQuestion extends QuestionBase {
 
 export interface DragSequenceQuestion extends QuestionBase {
   responseType: 'drag_sequence';
-  steps: Array<{ id: string; label: Text }>; // shuffled client-side
+  steps: Array<{ id: string; label: Text; imageUrl?: string }>; // shuffled client-side
+  imageUrl?: string; // optional context image shown above the steps
   correctOrder: string[]; // step ids, in correct order
 }
 

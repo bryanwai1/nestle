@@ -39,15 +39,17 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
   }
 
   return (
-    <main className="px-4 py-8">
+    <main className="px-4 py-6">
       <FreezeOverlay />
-      <div className="mx-auto mb-4 max-w-2xl">
-        <Link href="/play" className="text-sm font-medium text-slate-400 hover:text-slate-600">
-          ← {t('play.allModules')}
-        </Link>
-      </div>
       {moduleId === 'module-4-mental-health' ? (
-        <QRPrivacyFlow team={team} />
+        <>
+          <div className="mx-auto mb-4 max-w-2xl">
+            <Link href="/play" className="text-sm font-medium text-slate-400 hover:text-slate-600">
+              ← {t('play.allModules')}
+            </Link>
+          </div>
+          <QRPrivacyFlow team={team} />
+        </>
       ) : (
         <QuestionRunner moduleId={moduleId} team={team} />
       )}

@@ -61,7 +61,7 @@ export function VideoFillBlankInput({
         <div className="space-y-4">
           <div>
             <label className="mb-1.5 block text-sm font-semibold text-slate-800">
-              1) {tx({ en: 'What is wrong here?', bm: 'Apakah yang salah di sini?' })}
+              1) {tx({ en: 'What is the mistake here?', bm: 'Apakah yang salah di sini?' })}
             </label>
             <textarea
               rows={2}

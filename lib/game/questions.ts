@@ -86,7 +86,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   // ===================== MODULE 1 — SAFE DRIVING =====================
   q1: {
     id: 'q1', moduleId: 'module-1-safe-driving', order: 1, responseType: 'multiple_choice',
-    prompt: bi('Before you drive, which 6 things must you check on your car?', 'Sebelum memandu, apakah 6 perkara yang perlu anda periksa pada kereta?'),
+    prompt: bi('Wich are 6 critical vehicle component that will affect the safety of driving?', 'Sebelum memandu, apakah 6 perkara yang perlu anda periksa pada kereta?'),
     options: [
       bi('Brake, Lights, Wipers, Horn, Side mirrors, Tyres', 'Brek, Lampu, Pengelap cermin, Hon, Cermin sisi, Tayar'),
       bi('Brake, Fuel level, Wipers, Horn, Air-conditioning, Tyres', 'Brek, Paras minyak, Pengelap cermin, Hon, Penyaman udara, Tayar'),
@@ -100,7 +100,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   },
   q2: {
     id: 'q2', moduleId: 'module-1-safe-driving', order: 2, responseType: 'multiple_choice',
-    prompt: bi('On a long drive, how often must you stop and rest?', 'Semasa perjalanan jauh, berapa kerap anda perlu berhenti berehat?'),
+    prompt: bi('While you are on a long-distance drive, What is the requird rest amount after every duration of drive?', 'Semasa perjalanan jauh, berapa kerap anda perlu berhenti berehat?'),
     options: [
       bi('A 5-minute pause every hour', 'Berhenti 5 minit setiap sejam'),
       bi('A 15-minute break after every 2 hours of driving', 'Rehat 15 minit selepas setiap 2 jam memandu'),
@@ -115,20 +115,17 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q3: {
     id: 'q3', moduleId: 'module-1-safe-driving', order: 3, responseType: 'visual_sort',
     prompt: bi(
-      'If you feel sleepy while driving, which actions should you take? Select ALL correct ones.',
-      'Jika anda rasa mengantuk semasa memandu, tindakan manakah yang perlu diambil? Pilih SEMUA yang betul.'
+      ' If you feel sleepy while driving, What should you do to avoid DOZING OFF while driving? (More than one answer)',
+      'Jika anda rasa mengantuk semasa memandu, tindakan manakah yang perlu diambil? Pilih SEMUA yang betul. '
     ),
     correctChoices: [
-      { id: 'c_stop_rest',    text: bi('Stop and rest right away', 'Berhenti dan berehat segera') },
-      { id: 'c_short_nap',   text: bi('Pull over to take a short nap', 'Berhenti untuk tidur sebentar') },
-      { id: 'c_stretching',  text: bi('Pull over and do some stretching', 'Berhenti untuk melakukan regangan') },
-    ],
-    trapChoices: [
-      { id: 't_radio',       text: bi('Increase the radio volume', 'Besarkan volum radio') },
       { id: 't_window',      text: bi('Open the window for fresh air', 'Buka tingkap untuk udara segar') },
-      { id: 't_slow',        text: bi('Keep driving but go slower', 'Teruskan memandu, hanya lebih perlahan') },
-      { id: 't_caffeine',    text: bi('Drink a caffeine drink and continue', 'Minum minuman berkafein dan teruskan') },
-      { id: 't_aircon',      text: bi('Turn air-conditioning to max', 'Pasang penyaman udara pada tahap maksimum') },
+      { id: 'c_stop_rest',    text: bi('Pull over in a safe place and take a rest', 'Berhenti di tempat yang selamat dan berehat') },
+      { id: 'c_stretching',  text: bi('Pull over in a safe place and do some stretching', 'Berhenti di tempat yang selamat dan lakukan regangan') },    ],
+    trapChoices: [
+      { id: 't_radio',       text: bi('Increase the radio volume', 'Kuatkan kelantangan radio') },
+      { id: 't_window',      text: bi('Lean back the seat to get more comfortable', 'Sandarkan tempat duduk ke belakang untuk lebih selesa') },
+      { id: 't_slow',        text: bi('Eat a heavy and oily meal', 'Makan makanan yang berat dan berminyak') },
     ],
     requiresManualReview: false, maxPoints: 10,
   },
@@ -231,16 +228,16 @@ q6: {
     requiresManualReview: true, maxPoints: 10,
   },
   q18: {
-    id: 'q18', moduleId: 'module-2-stf', order: 18, responseType: 'drag_sequence',
+    id: 'q18', moduleId: 'module-2-stf', order: 18, responseType: 'drag_sequence', imageUrl: '/q18-shelf.png',
     prompt: bi(
-      'A worker needs to take products off the shelf marked with a circle. Put these safety steps in the right order.',
+      'A worker needs to unload a product from the rack, What are the safe steps in sequence to unload the product safely',
       'Seorang pekerja perlu mengambil produk dari rak yang ditanda dengan bulatan. Susun langkah keselamatan ini mengikut turutan yang betul.'
     ),
     steps: [
-      { id: 'clear_aisles', label: bi('Clear the aisle / remove obstructions', 'Pastikan laluan bersih / alihkan halangan') },
-      { id: 'inspect_ladder', label: bi('Check the ladder is in good condition', 'Periksa keadaan tangga') },
-      { id: 'hold_ladder', label: bi('Have someone hold the ladder', 'Minta seseorang pegang tangga') },
-      { id: 'confirm_floor', label: bi('Make sure the floor is not slippery', 'Pastikan lantai tidak licin') },
+      { id: 'clear_aisles', label: bi('Clear the aisle / remove obstructions', 'Pastikan laluan bersih / alihkan halangan'), imageUrl: '/q18/aisle.jpg' },
+      { id: 'inspect_ladder', label: bi('Check the ladder is in good condition', 'Periksa keadaan tangga'), imageUrl: '/q18/ladder.jpg' },
+      { id: 'hold_ladder', label: bi('Have someone hold the ladder', 'Minta seseorang pegang tangga'), imageUrl: '/q18/hold.jpg' },
+      { id: 'confirm_floor', label: bi('Make sure the floor is not slippery', 'Pastikan lantai tidak licin'), imageUrl: '/q18/floor.jpg' },
     ],
     correctOrder: ['clear_aisles', 'inspect_ladder', 'hold_ladder', 'confirm_floor'],
     requiresManualReview: false, maxPoints: 10,

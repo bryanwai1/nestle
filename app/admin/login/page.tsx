@@ -38,7 +38,7 @@ export default function AdminLoginPage() {
 
       <div className="relative z-10 flex w-full max-w-sm flex-1 flex-col items-center justify-center py-10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/she-day-logo.png/image001.png" alt="Nestlé SHE Day" className="h-12 w-auto" />
+        <img src="/she-day-logo.png/image001.png" alt="Nestlé SHE Day" className="h-12 w-auto rounded-xl bg-white px-3 py-2 shadow-md ring-1 ring-black/5" />
         <p className="mt-3 text-xs font-medium tracking-wide text-slate-500">Safety · Health · Environment</p>
 
         <h1 className="mt-6 text-2xl font-extrabold text-[#0B2545]">Welcome Back!</h1>

@@ -9,6 +9,6 @@ import { useRealtimeLeaderboard } from '@/lib/hooks/useRealtimeLeaderboard';
 import { SnakeLeaderboard } from '@/components/team/SnakeLeaderboard';
 
 export default function LeaderboardScreen() {
-  const { teams, loading } = useRealtimeLeaderboard(5);
+  const { teams, loading } = useRealtimeLeaderboard();
   return <SnakeLeaderboard teams={teams} loading={loading} />;
 }

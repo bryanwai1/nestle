@@ -14,11 +14,13 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 
 type LiveTeam = { id: string; team_number: number; current_total_score: number };
 
-const PALETTE: [string, string][] = [
-  ['#ff2d55', '#ff8fa3'], ['#ffb300', '#ffe082'], ['#00d68f', '#7bf5c8'],
-  ['#2f8bff', '#9cc9ff'], ['#a55eea', '#d6b3f5'], ['#19c6c6', '#8ff0ef'],
-  ['#ff6b35', '#ffc1a8'], ['#5c6bff', '#b3bcff'],
-];
+// Every team gets its own distinct colour, however many teams there are.
+// Golden-angle hue stepping keeps consecutive teams far apart on the wheel,
+// so no two snakes ever share a colour and none are left blank.
+function colorFor(i: number): [string, string] {
+  const h = (i * 137.508 + 14) % 360;
+  return [`hsl(${h}, 72%, 55%)`, `hsl(${h}, 85%, 72%)`];
+}
 const MEDALS = ['\uD83E\uDD47', '\uD83E\uDD48', '\uD83E\uDD49'];
 
 type Snake = {
@@ -103,7 +105,7 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
         let s = snakes.get(teamRow.id);
         const name = 'Team ' + teamRow.team_number;
         if (!s) {
-          s = { id: teamRow.id, name, color: PALETTE[colorI++ % PALETTE.length], target: teamRow.current_total_score, disp: teamRow.current_total_score, laneY: 0, targetY: 0, rank: 0, headX: 0, headY: 0, phase: Math.random() * Math.PI * 2, seen: false };
+          s = { id: teamRow.id, name, color: colorFor(colorI++), target: teamRow.current_total_score, disp: teamRow.current_total_score, laneY: 0, targetY: 0, rank: 0, headX: 0, headY: 0, phase: Math.random() * Math.PI * 2, seen: false };
           snakes.set(teamRow.id, s);
         } else {
           s.name = name;
@@ -194,9 +196,11 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
     }
 
     function drawSnake(s: Snake, laneH: number, maxScore: number, maxLenPx: number) {
-      const lenPx = MIN_LEN + (maxLenPx - MIN_LEN) * (s.disp / maxScore);
+      // Scale every snake to its lane so any number of teams fits on screen.
+      const sc = Math.max(0.4, Math.min(1, laneH / 84));
+      const lenPx = (MIN_LEN * Math.max(0.7, sc)) + (maxLenPx - MIN_LEN) * (s.disp / maxScore);
       const segCount = Math.max(6, Math.round(lenPx / SEG));
-      const amp = Math.min(laneH * 0.12, 13);
+      const amp = Math.min(laneH * 0.14, 13);
       const pts: number[][] = [];
       for (let i = 0; i <= segCount; i++) {
         const x = LEFT + i * SEG;
@@ -206,48 +210,51 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
       const head = pts[pts.length - 1]; s.headX = head[0]; s.headY = head[1];
 
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-      ctx.save(); ctx.shadowColor = s.color[0]; ctx.shadowBlur = 22; ctx.globalAlpha = 0.5;
-      ctx.strokeStyle = s.color[0]; ctx.lineWidth = 22; stroke(pts); ctx.restore();
+      ctx.save(); ctx.shadowColor = s.color[0]; ctx.shadowBlur = 22 * sc; ctx.globalAlpha = 0.5;
+      ctx.strokeStyle = s.color[0]; ctx.lineWidth = 22 * sc; stroke(pts); ctx.restore();
       const g = ctx.createLinearGradient(pts[0][0], 0, head[0], 0);
       g.addColorStop(0, s.color[0]); g.addColorStop(1, s.color[1]);
-      ctx.strokeStyle = g; ctx.lineWidth = 18; stroke(pts);
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 4;
-      ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1] - 4) : ctx.moveTo(p[0], p[1] - 4)); ctx.stroke();
+      ctx.strokeStyle = g; ctx.lineWidth = 18 * sc; stroke(pts);
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 4 * sc;
+      ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p[0], p[1] - 4 * sc) : ctx.moveTo(p[0], p[1] - 4 * sc)); ctx.stroke();
 
-      const hx = head[0], hy = head[1], hr = 16;
-      const hg = ctx.createRadialGradient(hx - 5, hy - 6, 2, hx, hy, hr);
+      const hx = head[0], hy = head[1], hr = 16 * sc;
+      const hg = ctx.createRadialGradient(hx - 5 * sc, hy - 6 * sc, 2, hx, hy, hr);
       hg.addColorStop(0, s.color[1]); hg.addColorStop(1, s.color[0]);
       ctx.fillStyle = hg; ctx.beginPath(); ctx.arc(hx, hy, hr, 0, 7); ctx.fill();
       ctx.fillStyle = '#fff';
-      ctx.beginPath(); ctx.arc(hx + 5, hy - 6, 4, 0, 7); ctx.fill();
-      ctx.beginPath(); ctx.arc(hx + 5, hy + 6, 4, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + 5 * sc, hy - 6 * sc, 4 * sc, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + 5 * sc, hy + 6 * sc, 4 * sc, 0, 7); ctx.fill();
       ctx.fillStyle = '#0b2545';
-      ctx.beginPath(); ctx.arc(hx + 6.4, hy - 6, 1.9, 0, 7); ctx.fill();
-      ctx.beginPath(); ctx.arc(hx + 6.4, hy + 6, 1.9, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + 6.4 * sc, hy - 6 * sc, 1.9 * sc, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.arc(hx + 6.4 * sc, hy + 6 * sc, 1.9 * sc, 0, 7); ctx.fill();
       if (Math.sin(t * 3 + s.phase) > 0.55) {
-        ctx.strokeStyle = '#ff3b5c'; ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.moveTo(hx + hr, hy); ctx.lineTo(hx + hr + 11, hy - 4);
-        ctx.moveTo(hx + hr + 6, hy - 1.5); ctx.lineTo(hx + hr + 12, hy + 4); ctx.stroke();
+        ctx.strokeStyle = '#ff3b5c'; ctx.lineWidth = 2 * sc;
+        ctx.beginPath(); ctx.moveTo(hx + hr, hy); ctx.lineTo(hx + hr + 11 * sc, hy - 4 * sc);
+        ctx.moveTo(hx + hr + 6 * sc, hy - 1.5 * sc); ctx.lineTo(hx + hr + 12 * sc, hy + 4 * sc); ctx.stroke();
       }
       if (s.rank === 0) {
         const pulse = 1 + Math.sin(t * 4) * 0.08;
-        ctx.save(); ctx.translate(hx, hy - hr - 12); ctx.scale(pulse, pulse);
+        ctx.save(); ctx.translate(hx, hy - hr - 12 * sc); ctx.scale(pulse * sc, pulse * sc);
         ctx.font = '26px serif'; ctx.textAlign = 'center'; ctx.fillText('\uD83D\uDC51', 0, 0); ctx.restore();
-        if (Math.random() < 0.3) sparkles.push({ x: hx + (Math.random() - .5) * 50, y: hy - hr - 18 + (Math.random() - .5) * 24, life: 1, size: 2 + Math.random() * 3 });
+        if (Math.random() < 0.3) sparkles.push({ x: hx + (Math.random() - .5) * 50, y: hy - hr - 18 * sc + (Math.random() - .5) * 24, life: 1, size: 2 + Math.random() * 3 });
       }
 
-      ctx.font = '700 16px system-ui'; const lw = ctx.measureText(s.name).width;
+      const fName = Math.max(11, Math.round(16 * sc)), fScore = Math.max(9, Math.round(12 * sc));
+      ctx.font = `700 ${fName}px system-ui`; const lw = ctx.measureText(s.name).width;
       const medal = s.rank < 3 ? MEDALS[s.rank] + ' ' : '';
       const scoreTxt = medal + Math.round(s.disp) + ' pts';
-      ctx.font = '700 12px system-ui'; const sw = ctx.measureText(scoreTxt).width;
-      const pillW = Math.max(lw, sw) + 30, pillH = 40, px = hx + hr + 14, py = hy - pillH / 2;
-      roundRect(px, py, pillW, pillH, 12); ctx.fillStyle = 'rgba(255,255,255,0.96)'; ctx.fill();
-      ctx.fillStyle = s.color[0]; ctx.beginPath(); ctx.arc(px + 14, hy, 9.5, 0, 7); ctx.fill();
-      ctx.fillStyle = '#fff'; ctx.font = '800 11px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(String(s.rank + 1), px + 14, hy + .5);
+      ctx.font = `700 ${fScore}px system-ui`; const sw = ctx.measureText(scoreTxt).width;
+      const pad = 14 * sc, pillW = Math.max(lw, sw) + 30 * sc, pillH = Math.max(26, 40 * sc), px = hx + hr + pad, py = hy - pillH / 2;
+      roundRect(px, py, pillW, pillH, 12 * sc); ctx.fillStyle = 'rgba(255,255,255,0.96)'; ctx.fill();
+      const badgeR = Math.max(7, 9.5 * sc);
+      ctx.fillStyle = s.color[0]; ctx.beginPath(); ctx.arc(px + badgeR + 4, hy, badgeR, 0, 7); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.font = `800 ${Math.max(9, Math.round(11 * sc))}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(s.rank + 1), px + badgeR + 4, hy + .5);
       ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = '#0b2545'; ctx.font = '700 16px system-ui'; ctx.fillText(s.name, px + 28, hy - 2);
-      ctx.fillStyle = '#e4002b'; ctx.font = '700 12px system-ui'; ctx.fillText(scoreTxt, px + 28, hy + 13);
+      const tx0 = px + badgeR * 2 + 10;
+      ctx.fillStyle = '#0b2545'; ctx.font = `700 ${fName}px system-ui`; ctx.fillText(s.name, tx0, hy - 2 * sc);
+      ctx.fillStyle = '#e4002b'; ctx.font = `700 ${fScore}px system-ui`; ctx.fillText(scoreTxt, tx0, hy + 12 * sc);
     }
 
     function effects() {
@@ -360,7 +367,7 @@ export function SnakeLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadin
       )}
 
       <footer className="pointer-events-none absolute inset-x-0 bottom-3 text-center text-xs text-white/40">
-        {tx({ en: 'Longest snake leads · 👑 winner · live top 5', bm: 'Ular terpanjang mendahului · 👑 juara · 5 teratas langsung' })}
+        {tx({ en: 'Longest snake leads · 👑 winner · live · all teams', bm: 'Ular terpanjang mendahului · 👑 juara · langsung · semua pasukan' })}
       </footer>
     </div>
   );

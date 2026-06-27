@@ -2,3 +2,9 @@ node_modules
 .vercel
 .next/
 .DS_Store
+
+# build artifacts
+*.bak
+*_photos.js
+add_q33.js
+remap_q17.js

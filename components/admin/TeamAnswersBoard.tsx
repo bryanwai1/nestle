@@ -10,6 +10,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { QUESTIONS } from '@/lib/game/questions';
 
 interface Resp {
   id: string;
@@ -51,6 +52,17 @@ function isImage(url: string) {
 }
 function isVideo(url: string) {
   return /\.(mp4|webm|mov|m4v)$/i.test(url);
+}
+
+// Friendly per-step label (e.g. "C – Call for help") for multi-photo answers.
+function stepLabelFor(questionId: string, stepId: string): string {
+  const q = QUESTIONS[questionId];
+  const steps = q && q.photoSteps;
+  if (steps) {
+    const s = steps.find((x) => x.id === stepId);
+    if (s) return s.label.en;
+  }
+  return stepId;
 }
 
 export function TeamAnswersBoard() {
@@ -233,39 +245,52 @@ export function TeamAnswersBoard() {
             {visible.map((r) => {
               const url = publicMediaUrl(r.media_url);
               const graded = r.is_correct !== null;
+              // three-state: full correct / partial (positive but not full) / wrong
+              const status = !graded
+                ? 'ungraded'
+                : r.is_correct
+                ? 'correct'
+                : r.points_awarded > 0
+                ? 'partial'
+                : 'wrong';
+              const photos =
+                r.response_data && Array.isArray((r.response_data as any).photos)
+                  ? ((r.response_data as any).photos as Array<{ stepId: string; url: string }>)
+                  : null;
+              const border =
+                status === 'correct'
+                  ? 'border-emerald-400/30 bg-emerald-400/5'
+                  : status === 'partial'
+                  ? 'border-amber-400/30 bg-amber-400/5'
+                  : status === 'wrong'
+                  ? 'border-rose-400/30 bg-rose-400/5'
+                  : 'border-white/10 bg-black/20';
               return (
-                <div
-                  key={r.id}
-                  className={
-                    'rounded-xl border p-3 transition ' +
-                    (graded
-                      ? r.is_correct
-                        ? 'border-emerald-400/30 bg-emerald-400/5'
-                        : 'border-rose-400/30 bg-rose-400/5'
-                      : 'border-white/10 bg-black/20')
-                  }
-                >
+                <div key={r.id} className={'rounded-xl border p-3 transition ' + border}>
                   <div className="mb-2 flex items-center justify-between">
                     <span className="text-[11px] font-medium text-slate-300">
                       {r.module_id.replace(/^module-\d+-/, '').replace(/-/g, ' ')} ·{' '}
                       {r.question_id.toUpperCase()}
                     </span>
-                    {graded ? (
+                    {status === 'ungraded' ? (
+                      <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                        Ungraded
+                      </span>
+                    ) : (
                       <span
                         className={
                           'rounded-full px-2 py-0.5 text-[10px] font-bold ' +
-                          (r.is_correct
+                          (status === 'correct'
                             ? 'bg-emerald-400/20 text-emerald-300'
+                            : status === 'partial'
+                            ? 'bg-amber-400/20 text-amber-300'
                             : 'bg-rose-400/20 text-rose-300')
                         }
                       >
-                        {r.is_correct ? 'Correct' : 'Wrong'} · {r.points_awarded > 0 ? '+' : ''}
+                        {status === 'correct' ? 'Correct' : status === 'partial' ? 'Partial' : 'Wrong'} ·{' '}
+                        {r.points_awarded > 0 ? '+' : ''}
                         {r.points_awarded}
                         {r.auto_graded ? ' · auto' : ''}
-                      </span>
-                    ) : (
-                      <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                        Ungraded
                       </span>
                     )}
                   </div>
@@ -273,38 +298,49 @@ export function TeamAnswersBoard() {
                   {/* Answer content */}
                   <div className="mb-3 min-h-[40px] text-sm text-slate-100">
                     {r.text_response && <p className="mb-2">{r.text_response}</p>}
-                    {url && isImage(url) && (
-                      <img
-                        src={url}
-                        alt="submission"
-                        className="max-h-44 w-full rounded-lg object-cover"
-                      />
+
+                    {/* Multi-photo (e.g. Q29 C-A-L-M): one labelled photo per step */}
+                    {photos && photos.length > 0 ? (
+                      <div className="grid grid-cols-2 gap-2">
+                        {photos.map((p) => {
+                          const purl = publicMediaUrl(p.url);
+                          return (
+                            <figure key={p.stepId} className="overflow-hidden rounded-lg border border-white/10">
+                              {purl ? (
+                                <img src={purl} alt={p.stepId} className="aspect-square w-full bg-black/30 object-cover" />
+                              ) : (
+                                <div className="aspect-square w-full bg-black/30" />
+                              )}
+                              <figcaption className="bg-black/40 px-1.5 py-1 text-[9px] font-medium leading-tight text-slate-300">
+                                {stepLabelFor(r.question_id, p.stepId)}
+                              </figcaption>
+                            </figure>
+                          );
+                        })}
+                      </div>
+                    ) : (
+                      <>
+                        {url && isImage(url) && (
+                          <img src={url} alt="submission" className="max-h-44 w-full rounded-lg object-cover" />
+                        )}
+                        {url && isVideo(url) && (
+                          <video src={url} controls className="max-h-44 w-full rounded-lg" />
+                        )}
+                        {url && !isImage(url) && !isVideo(url) && (
+                          <a href={url} target="_blank" rel="noreferrer" className="text-xs text-sky-300 underline">
+                            Open uploaded file
+                          </a>
+                        )}
+                        {!r.text_response &&
+                          !url &&
+                          r.response_data &&
+                          Object.keys(r.response_data).length > 0 && (
+                            <pre className="overflow-x-auto rounded-lg bg-black/30 p-2 text-[11px] text-slate-300">
+                              {JSON.stringify(r.response_data, null, 2)}
+                            </pre>
+                          )}
+                      </>
                     )}
-                    {url && isVideo(url) && (
-                      <video
-                        src={url}
-                        controls
-                        className="max-h-44 w-full rounded-lg"
-                      />
-                    )}
-                    {url && !isImage(url) && !isVideo(url) && (
-                      <a
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-xs text-sky-300 underline"
-                      >
-                        Open uploaded file
-                      </a>
-                    )}
-                    {!r.text_response &&
-                      !url &&
-                      r.response_data &&
-                      Object.keys(r.response_data).length > 0 && (
-                        <pre className="overflow-x-auto rounded-lg bg-black/30 p-2 text-[11px] text-slate-300">
-                          {JSON.stringify(r.response_data, null, 2)}
-                        </pre>
-                      )}
                   </div>
 
                   {/* Grade controls */}

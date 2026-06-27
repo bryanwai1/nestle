@@ -74,9 +74,37 @@ export function GradingCard({ submission }: { submission: QueuedSubmission }) {
   );
 }
 
+// Resolve a friendly per-step label (e.g. "C – Call for help") for photo grids.
+function stepLabelFor(questionId: string, stepId: string): string {
+  const q = QUESTIONS[questionId];
+  if (q && q.responseType === 'media_upload' && q.photoSteps) {
+    const s = q.photoSteps.find((x) => x.id === stepId);
+    if (s) return s.label.en;
+  }
+  return stepId;
+}
+
 function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
   switch (submission.response_type) {
-    case 'media_upload':
+    case 'media_upload': {
+      // Multi-photo submissions (e.g. Q29 C-A-L-M): one labelled photo per step.
+      const data = (submission.response_data ?? {}) as { photos?: Array<{ stepId: string; url: string }> };
+      if (Array.isArray(data.photos) && data.photos.length > 0) {
+        return (
+          <div className="grid grid-cols-2 gap-2">
+            {data.photos.map((p) => (
+              <figure key={p.stepId} className="overflow-hidden rounded-lg border border-slate-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={p.url} alt={p.stepId} className="aspect-square w-full bg-slate-100 object-cover" />
+                <figcaption className="bg-slate-50 px-2 py-1 text-[10px] font-medium leading-tight text-slate-600">
+                  {stepLabelFor(submission.question_id, p.stepId)}
+                </figcaption>
+              </figure>
+            ))}
+          </div>
+        );
+      }
+      // Original single photo / video.
       return submission.media_url ? (
         submission.media_url.match(/\.(mp4|mov|webm)$/i) ? (
           <video src={submission.media_url} controls className="w-full rounded-lg bg-slate-900" />
@@ -87,6 +115,7 @@ function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
       ) : (
         <p className="text-xs text-slate-400">No media URL recorded.</p>
       );
+    }
 
     case 'hazard_canvas': {
       const taps = (submission.response_data.taps as Array<{ x: number; y: number }>) ?? [];

@@ -36,7 +36,7 @@ export const MODULES: GameModule[] = [
     id: 'module-3-heart-health', index: 3,
     title: bi('Heart Health', 'Kesihatan Jantung'),
     timerSeconds: 10 * 60,
-    questionIds: ['q19', 'q20', 'q21'],
+    questionIds: ['q19', 'q20', 'q21', 'q33'],
   },
   {
     id: 'module-4-mental-health', index: 4,
@@ -311,6 +311,22 @@ q6: {
     ],
     minCorrectRequired: 4, freeText: true,
     requiresManualReview: true, maxPoints: 10,
+  },
+  q33: {
+    id: 'q33', moduleId: 'module-3-heart-health', order: 33, responseType: 'drag_sequence',
+    prompt: bi(
+      'Rearrange the correct sequence while performing CPR (DRABC).',
+      'Susun semula urutan yang betul semasa melakukan CPR (DRABC).'
+    ),
+    steps: [
+      { id: 'danger', label: bi('Danger', 'Bahaya') },
+      { id: 'response', label: bi('Response', 'Gerak Balas') },
+      { id: 'airway', label: bi('Airway', 'Salur Udara') },
+      { id: 'breathing', label: bi('Breathing', 'Pernafasan') },
+      { id: 'circulation', label: bi('Circulation', 'Sirkulasi') },
+    ],
+    correctOrder: ['danger', 'response', 'airway', 'breathing', 'circulation'],
+    requiresManualReview: false, maxPoints: 10,
   },
 
   // ===================== MODULE 5 — ERGONOMICS =====================

@@ -446,7 +446,13 @@ q6: {
       'C \u2013 Call for help. A \u2013 Assist (help them sit down). L \u2013 Look (watch their condition). M \u2013 Move to CPR if they collapse.',
       'C \u2013 Call (hubungi bantuan). A \u2013 Assist (bantu dia duduk). L \u2013 Look (perhatikan keadaannya). M \u2013 Move (mula CPR jika dia rebah).'
     ),
-    mediaKind: 'video', maxDurationSeconds: 180,
+    mediaKind: 'photo',
+    photoSteps: [
+      { id: 'call',   label: bi('C – Call for help', 'C – Hubungi bantuan') },
+      { id: 'assist', label: bi('A – Assist (help them sit down)', 'A – Bantu dia duduk') },
+      { id: 'look',   label: bi('L – Look (watch their condition)', 'L – Perhatikan keadaannya') },
+      { id: 'move',   label: bi('M – Move to CPR if they collapse', 'M – Mula CPR jika dia rebah') },
+    ],
     requiresManualReview: true, maxPoints: 10,
   },
 

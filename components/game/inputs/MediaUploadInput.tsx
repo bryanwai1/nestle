@@ -1,11 +1,16 @@
 // components/game/inputs/MediaUploadInput.tsx
 //
-// Capture works two ways:
-//   1. LIVE CAMERA via getUserMedia — works on laptops/desktops too (Capture
-//      a photo to canvas, or record video with MediaRecorder).
-//   2. Fallback file input with capture="environment" — phones open the
-//      native camera; desktops without camera permission get a file picker.
-// Either way the bytes upload straight to Supabase Storage from the browser.
+// Two modes:
+//   • SINGLE (default) — one photo or one video, captured via live camera
+//     (getUserMedia) or a native file input. Bytes upload straight to Supabase
+//     Storage. This is the original behaviour, unchanged.
+//   • MULTI-PHOTO — when question.photoSteps is set, the team adds one photo
+//     per step on a single page (e.g. Q29 C-A-L-M). All photos upload on
+//     submit; their URLs are stored in response_data.photos[] and media_url is
+//     set to the first photo so existing single-media views still resolve.
+//
+// Either way this just collects an answer and calls onAnswer once. Grading is
+// unchanged (Q29 stays manual review, 10 pts).
 
 'use client';
 
@@ -18,12 +23,174 @@ import { SubmitButton } from './shared';
 
 const BUCKET = 'submissions';
 
-export function MediaUploadInput({
-  question,
-  teamId,
-  disabled,
-  onAnswer,
-}: QuestionInputProps<'media_upload'> & { question: MediaUploadQuestion }) {
+type Props = QuestionInputProps<'media_upload'> & { question: MediaUploadQuestion };
+
+export function MediaUploadInput(props: Props) {
+  const steps = props.question.photoSteps;
+  if (steps && steps.length > 0) return <MultiPhotoUpload {...props} />;
+  return <SingleMediaUpload {...props} />;
+}
+
+/* ------------------------------------------------------------------ */
+/* MULTI-PHOTO: one photo per step, all on one page                   */
+/* ------------------------------------------------------------------ */
+
+function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
+  const { t, tx } = useLanguage();
+  const steps = question.photoSteps ?? [];
+
+  const [files, setFiles] = useState<Record<string, File>>({});
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(
+    () => () => {
+      Object.values(previews).forEach((u) => URL.revokeObjectURL(u));
+    },
+    [previews]
+  );
+
+  function pick(stepId: string, f: File | null) {
+    if (!f) return;
+    setPreviews((prev) => {
+      if (prev[stepId]) URL.revokeObjectURL(prev[stepId]);
+      return { ...prev, [stepId]: URL.createObjectURL(f) };
+    });
+    setFiles((prev) => ({ ...prev, [stepId]: f }));
+  }
+
+  function removePhoto(stepId: string) {
+    setPreviews((prev) => {
+      if (prev[stepId]) URL.revokeObjectURL(prev[stepId]);
+      const next = { ...prev };
+      delete next[stepId];
+      return next;
+    });
+    setFiles((prev) => {
+      const next = { ...prev };
+      delete next[stepId];
+      return next;
+    });
+  }
+
+  const done = Object.keys(files).length;
+  const allDone = steps.every((s) => files[s.id]);
+
+  async function handleSubmit() {
+    if (!allDone) return;
+    setUploading(true);
+    setError(null);
+    try {
+      const supabase = createClient();
+      const photos: Array<{ stepId: string; url: string }> = [];
+      for (const s of steps) {
+        const f = files[s.id];
+        const ext = f.name.split('.').pop() || 'jpg';
+        const path = `${teamId}/${question.id}/${s.id}-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, f, {
+          cacheControl: '3600',
+          upsert: true,
+        });
+        if (upErr) throw upErr;
+        const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
+        photos.push({ stepId: s.id, url: pub.publicUrl });
+      }
+      onAnswer({ uploadedAt: new Date().toISOString(), photos }, photos[0]?.url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Upload failed — check your connection and try again.');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  return (
+    <div>
+      <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>
+
+      <div className="space-y-3">
+        {steps.map((s, i) => {
+          const preview = previews[s.id];
+          return (
+            <div key={s.id} className="rounded-xl border border-slate-200 p-3">
+              <div className="mb-2 flex items-center gap-2">
+                <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-[#0B2545] text-xs font-bold text-white">
+                  {i + 1}
+                </span>
+                <span className="text-sm font-semibold text-[#0B2545]">{tx(s.label)}</span>
+                {preview && (
+                  <span className="ml-auto text-xs font-semibold text-emerald-600">✓</span>
+                )}
+              </div>
+
+              {preview ? (
+                <div className="space-y-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={preview} alt="" className="w-full rounded-lg" />
+                  <div className="flex items-center gap-4">
+                    <label className="inline-block cursor-pointer text-xs font-medium text-slate-500 underline">
+                      {t('input.retake')}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        disabled={disabled || uploading}
+                        onChange={(e) => pick(s.id, e.target.files?.[0] ?? null)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(s.id)}
+                      disabled={disabled || uploading}
+                      className="text-xs font-medium text-slate-400 underline"
+                    >
+                      {tx({ en: 'Remove', bm: 'Buang' })}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <label
+                  className={`flex w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-slate-300 px-4 py-6 text-sm text-slate-600 transition hover:border-[#0B2545] ${
+                    disabled || uploading ? 'pointer-events-none opacity-50' : ''
+                  }`}
+                >
+                  <span className="text-2xl">📷</span>
+                  <span className="font-medium">{t('input.takePhoto')}</span>
+                  <span className="text-xs text-slate-400">{tx({ en: 'Camera or photo library', bm: 'Kamera atau galeri' })}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={disabled || uploading}
+                    onChange={(e) => pick(s.id, e.target.files?.[0] ?? null)}
+                  />
+                </label>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+
+      <p className="mt-3 text-center text-xs text-slate-400">
+        {tx({ en: `${done} of ${steps.length} photos added`, bm: `${done} daripada ${steps.length} foto ditambah` })}
+      </p>
+
+      <SubmitButton
+        disabled={!allDone || disabled || uploading}
+        onClick={handleSubmit}
+        label={uploading ? t('input.uploading') : undefined}
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* SINGLE: original one-photo / one-video capture (unchanged)         */
+/* ------------------------------------------------------------------ */
+
+function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   const isPhoto = question.mediaKind === 'photo';
   const { t, tx } = useLanguage();
 

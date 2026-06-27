@@ -4,7 +4,11 @@
 // "Suku-Suku Separuh" healthy-plate builder — ROUND plate, ½ veg/fruit,
 // ¼ protein, ¼ carbs. Players may place ANY food in ANY section (free
 // placement); correctness is judged at grading time, not blocked here.
-// Cost/calorie tracking and the admin summary are unchanged.
+//
+// Layout: the round plate is a clean DROP TARGET (each wedge shows a count and
+// highlights on hover). The food you place shows in tidy section cards BELOW
+// the plate, so chips wrap normally and never overflow the circle. Cost
+// tracking, the tray, grading and onAnswer are unchanged.
 
 'use client';
 
@@ -24,6 +28,12 @@ const EMOJI: Record<string, string> = {
 const COLUMN_ORDER = ['protein', 'veg_fruit', 'carb'];
 
 const SECTION_TINT: Record<string, string> = {
+  veg_fruit: 'border-[#9ec06a] bg-[#C0DD97]/40',
+  protein: 'border-[#e07d59] bg-[#F0997B]/35',
+  carb: 'border-[#e0a945] bg-[#FAC775]/40',
+};
+
+const SECTION_SWATCH: Record<string, string> = {
   veg_fruit: 'bg-[#C0DD97]',
   protein: 'bg-[#F0997B]',
   carb: 'bg-[#FAC775]',
@@ -53,6 +63,14 @@ export function BudgetCanvasInput({
       return next;
     });
   });
+
+  function removePlaced(foodId: string) {
+    setPlaced((p) => {
+      const next = { ...p };
+      delete next[foodId];
+      return next;
+    });
+  }
 
   const totalCost = useMemo(
     () => Object.keys(placed).reduce((s, id) => s + (foodById[id]?.costRM ?? 0), 0),
@@ -91,33 +109,56 @@ export function BudgetCanvasInput({
     );
   };
 
-  const Section = ({ qid, className }: { qid: string; className: string }) => {
+  // A placed chip = draggable FoodChip (drag between sections / back to tray)
+  // plus a ✕ to remove. Lives in the section cards below the plate.
+  const PlacedChip = ({ id }: { id: string }) => (
+    <div className="relative">
+      <FoodChip id={id} mini />
+      <button
+        type="button"
+        disabled={disabled}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={() => removePlaced(id)}
+        aria-label="Remove"
+        className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-700 text-[9px] font-bold leading-none text-white shadow"
+      >
+        ✕
+      </button>
+    </div>
+  );
+
+  // Plate wedge = drop zone only: shows a count + hover highlight, no chips
+  // inside the circle (that was the overflow bug).
+  const PlateZone = ({ qid, className }: { qid: string; className: string }) => {
     const q = quadrant(qid);
     if (!q) return null;
     const isHover = hoverZone === qid;
+    const count = placedIn(qid).length;
     return (
       <div
         data-dnd-zone={qid}
-        className={`${className} relative flex h-full flex-col gap-1.5 px-6 pt-7 transition ${
+        className={`${className} relative flex items-center justify-center overflow-hidden transition ${
           isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
         }`}
       >
-{null && <p>{tx(q.label)}</p>}        {isHover && (
+        {count > 0 && (
+          <span className="rounded-full bg-white/85 px-2 py-0.5 text-[11px] font-bold text-[#0B2545] shadow">
+            {count}
+          </span>
+        )}
+        {isHover && (
           <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
             drop here
           </span>
         )}
-        <div className="flex flex-wrap gap-1.5">
-          {placedIn(qid).map((f) => <FoodChip key={f.id} id={f.id} mini />)}
-        </div>
       </div>
     );
   };
 
   return (
     <div>
-{/* SVG plate: real ½ / ¼ / ¼ wedges — color IS the circle, no clip bleed.
-          Invisible square drop-zones overlay each wedge so dragging still works. */}
+      {/* SVG plate: real ½ / ¼ / ¼ wedges. Invisible square drop-zones overlay
+          each wedge so dragging onto the plate still works. */}
       <div className="mx-auto mb-4 w-full max-w-sm">
         <div className="relative mx-auto aspect-square w-full">
           <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
@@ -134,12 +175,12 @@ export function BudgetCanvasInput({
             <circle cx="100" cy="100" r="98" fill="none" stroke="#cbd5e1" strokeWidth="4" />
           </svg>
 
-          {/* Drop zones + placed chips, positioned over each wedge */}
+          {/* Drop zones over each wedge (count + hover only) */}
           <div className="absolute inset-0 grid grid-cols-2">
-            <Section qid="veg_fruit" className="col-span-1 row-span-2" />
+            <PlateZone qid="veg_fruit" className="col-span-1 row-span-2" />
             <div className="col-span-1 grid grid-rows-2">
-              <Section qid="protein" className="" />
-              <Section qid="carb" className="" />
+              <PlateZone qid="protein" className="" />
+              <PlateZone qid="carb" className="" />
             </div>
           </div>
         </div>
@@ -147,14 +188,48 @@ export function BudgetCanvasInput({
           ½ vegetables &amp; fruit · ¼ protein · ¼ carbs
         </p>
       </div>
-      
-            <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
+
+      {/* Spent */}
+      <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
         overBudget ? 'border-red-300 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
       }`}>
         <span>Spent</span>
         <span className="tabular-nums">RM{totalCost.toFixed(2)} / RM{question.budgetLimitRM}</span>
       </div>
 
+      {/* Your plate — placed items per section (wrap cleanly, also drop targets) */}
+      <div className="mb-4 space-y-2">
+        {question.quadrants.map((q) => {
+          const items = placedIn(q.id);
+          const isHover = hoverZone === q.id;
+          return (
+            <div
+              key={q.id}
+              data-dnd-zone={q.id}
+              className={`rounded-xl border-2 p-2.5 transition ${SECTION_TINT[q.id] ?? 'border-slate-200'} ${
+                isHover ? 'ring-2 ring-emerald-400' : ''
+              }`}
+            >
+              <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-600">
+                <span className={`h-2.5 w-2.5 rounded-full ${SECTION_SWATCH[q.id] ?? ''}`} />
+                {tx(q.label)}
+                <span className="ml-1 rounded-full bg-white/70 px-1.5 text-[10px] text-slate-500">{items.length}</span>
+              </p>
+              {items.length === 0 ? (
+                <p className="px-1 py-1 text-xs italic text-slate-500">
+                  {tx({ en: 'Drag food here', bm: 'Seret makanan ke sini' })}
+                </p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {items.map((f) => <PlacedChip key={f.id} id={f.id} />)}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tray of unplaced foods */}
       <div
         data-dnd-zone="__tray"
         className={`grid grid-cols-3 gap-2 rounded-xl border-2 border-dashed p-2 transition ${

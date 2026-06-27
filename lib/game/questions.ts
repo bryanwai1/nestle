@@ -86,7 +86,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   // ===================== MODULE 1 — SAFE DRIVING =====================
   q1: {
     id: 'q1', moduleId: 'module-1-safe-driving', order: 1, responseType: 'multiple_choice',
-    prompt: bi('Wich are 6 critical vehicle component that will affect the safety of driving?', 'Sebelum memandu, apakah 6 perkara yang perlu anda periksa pada kereta?'),
+    prompt: bi('Wich are 6 critical vehicle component that will affect the safety of driving?', 'Apakah 6 komponen kritikal kenderaan yang menjejaskan keselamatan pemanduan?'),
     options: [
       bi('Brake, Lights, Wipers, Horn, Side mirrors, Tyres', 'Brek, Lampu, Pengelap cermin, Hon, Cermin sisi, Tayar'),
       bi('Brake, Fuel level, Wipers, Horn, Air-conditioning, Tyres', 'Brek, Paras minyak, Pengelap cermin, Hon, Penyaman udara, Tayar'),
@@ -233,7 +233,7 @@ q6: {
     id: 'q18', moduleId: 'module-2-stf', order: 18, responseType: 'drag_sequence', imageUrl: '/q18-shelf.png',
     prompt: bi(
       'A worker needs to unload a product from the rack, What are the safe steps in sequence to unload the product safely',
-      'Seorang pekerja perlu mengambil produk dari rak yang ditanda dengan bulatan. Susun langkah keselamatan ini mengikut turutan yang betul.'
+      'Seorang pekerja perlu mengambil produk dari rak. Susun langkah keselamatan ini mengikut turutan yang betul.'
     ),
     steps: [
       { id: 'clear_aisles', label: bi('Clear the aisle / remove obstructions', 'Pastikan laluan bersih / alihkan halangan'), imageUrl: '/q18/aisle.jpg' },
@@ -323,7 +323,7 @@ q6: {
       { id: 'response', label: bi('Response', 'Gerak Balas') },
       { id: 'airway', label: bi('Airway', 'Salur Udara') },
       { id: 'breathing', label: bi('Breathing', 'Pernafasan') },
-      { id: 'circulation', label: bi('Circulation', 'Sirkulasi') },
+      { id: 'circulation', label: bi('Circulation', 'Peredaran Darah') },
     ],
     correctOrder: ['danger', 'response', 'airway', 'breathing', 'circulation'],
     requiresManualReview: false, maxPoints: 10,

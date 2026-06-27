@@ -123,7 +123,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
       { id: 'c_stop_rest',    text: bi('Pull over in a safe place and take a rest', 'Berhenti di tempat yang selamat dan berehat') },
       { id: 'c_stretching',  text: bi('Pull over in a safe place and do some stretching', 'Berhenti di tempat yang selamat dan lakukan regangan') },    ],
     trapChoices: [
-      { id: 't_radio',       text: bi('Increase the radio volume', 'Kuatkan kelantangan radio') },
+      { id: 't_radio',       text: bi('Lowering the temperature of the aircond', 'Merendahkan suhu penyaman udara') },
       { id: 't_window',      text: bi('Lean back the seat to get more comfortable', 'Sandarkan tempat duduk ke belakang untuk lebih selesa') },
       { id: 't_slow',        text: bi('Eat a heavy and oily meal', 'Makan makanan yang berat dan berminyak') },
     ],
@@ -141,8 +141,8 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q5: {
     id: 'q5', moduleId: 'module-1-safe-driving', order: 5, responseType: 'math_input',
     prompt: bi(
-      'How many seconds gap must you keep from the car in front? Type your answer.',
-      'Berapa saat jarak yang perlu anda kekalkan daripada kereta di hadapan? Taip jawapan anda.'
+      'How many seconds gap must you keep from the car in front to avoid an incident? Type your answer.',
+      'Berapa saat jarak yang perlu anda kekalkan daripada kereta di hadapan untuk mengelakkan kemalangan? Taip jawapan anda.'
     ),
     formulaDisplay: bi('Safe following distance = __ seconds', 'Jarak selamat = __ saat'),
     expectedValue: 3, tolerance: 0,
@@ -249,8 +249,8 @@ q6: {
   q19: {
     id: 'q19', moduleId: 'module-3-heart-health', order: 19, responseType: 'classification_matrix',
     prompt: bi(
-      'Sort each fact into the correct box — Heart Attack or Cardiac Arrest.',
-      'Susun setiap fakta ke dalam kotak yang betul — Serangan Jantung atau Henti Jantung.'
+      'Specify the differences between heart attack and cardiac arrest by dragging the symptoms into the respective box.',
+      'Nyatakan perbezaan antara serangan jantung dan henti jantung dengan menyeret gejala ke dalam kotak masing-masing.'
     ),
     categories: [
       { id: 'heart_attack',   label: bi('❤️ Heart Attack',   '❤️ Serangan Jantung') },
@@ -273,8 +273,8 @@ q6: {
   q20: {
     id: 'q20', moduleId: 'module-3-heart-health', order: 20, responseType: 'visual_sort',
     prompt: bi(
-      'Pick the habits that are really good for your heart. Some choices are wrong on purpose.',
-      'Pilih tabiat yang benar-benar baik untuk jantung anda. Sesetengah pilihan sengaja dibuat salah.'
+      'What are the healthy lifestyles that are good for your heart?',
+      'Apakah gaya hidup sihat yang baik untuk jantung anda?'
     ),
     correctChoices: [
       { id: 'c1', text: bi('Eat heart-healthy food (fruit, vegetables, whole grains, fish)', 'Makan makanan sihat untuk jantung (buah-buahan, sayur-sayuran, bijirin penuh, ikan)') },
@@ -302,7 +302,7 @@ q6: {
   },
   q21: {
     id: 'q21', moduleId: 'module-3-heart-health', order: 21, responseType: 'subjective_select',
-    prompt: bi('Name 4 tests that check your heart health.', 'Namakan 4 ujian yang memeriksa kesihatan jantung anda.'),
+    prompt: bi('Name 4 different tests that can diagnose your heart condition.', 'Namakan 4 ujian berbeza yang boleh mendiagnosis keadaan jantung anda.'),
     acceptableAnswers: [
       { id: 'a1', text: bi('Stress Test', 'Ujian Tekanan (Stress Test)') },
       { id: 'a2', text: bi('ECG', 'ECG') },
@@ -390,7 +390,7 @@ q6: {
   },
   q27: {
     id: 'q27', moduleId: 'module-6-exercise', order: 27, responseType: 'math_input',
-    prompt: bi('A 50-year-old man goes jogging. Work out his Max Heart Rate.', 'Seorang lelaki berusia 50 tahun pergi berjoging. Kira Kadar Denyutan Jantung Maksimum beliau.'),
+    prompt: bi('A safe heart rate applies to every age. A 50-year-old man goes jogging, what is his safe heart rate?', 'Kadar denyutan jantung selamat terpakai untuk semua peringkat umur. Seorang lelaki berusia 50 tahun pergi berjoging, apakah kadar denyutan jantung selamat beliau?'),
     // formulaDisplay intentionally blank — players must recall the formula themselves
     formulaDisplay: bi('', ''), expectedValue: 170, tolerance: 0,
     requiresManualReview: false, maxPoints: 10,
@@ -400,8 +400,8 @@ q6: {
   q28: {
     id: 'q28', moduleId: 'module-7-balanced-diet', order: 28, responseType: 'budget_canvas',
     prompt: bi(
-      'Build a healthy plate using Suku-Suku Separuh (½ vegetables & fruit, ¼ protein, ¼ carbs). Don’t spend more than RM12.',
-      'Bina pinggan sihat menggunakan Suku-Suku Separuh (½ sayur & buah, ¼ protein, ¼ karbohidrat). Jangan belanja lebih daripada RM12.'
+      'Build a healthy plate using Suku-Suku Separuh (½ vegetables & fruit, ¼ protein, ¼ carbs) within the budget of RM12.',
+      'Bina pinggan sihat menggunakan Suku-Suku Separuh (½ sayur & buah, ¼ protein, ¼ karbohidrat) dalam bajet RM12.'
     ),
     budgetLimitRM: 12,
     quadrants: [
@@ -460,8 +460,8 @@ q6: {
   q30: {
     id: 'q30', moduleId: 'module-9-fire-emergency', order: 30, responseType: 'exact_sequence',
     prompt: bi(
-      'What are the 4 steps for using a fire extinguisher? Fill in all 4 boxes (in English \u2014 P.A.S.S).',
-      'Apakah 4 langkah untuk menggunakan alat pemadam api? Isi keempat-empat kotak (dalam Bahasa Inggeris \u2014 P.A.S.S).'
+      'Name the 4 steps of operating a fire extinguisher. Fill in all 4 boxes (in English).',
+      'Namakan 4 langkah mengendalikan alat pemadam api. Isi keempat-empat kotak (dalam Bahasa Inggeris).'
     ),
     blanks: 4, correctValues: ['Pull', 'Aim', 'Squeeze', 'Sweep'], // 100% string-exact, in order — kept English, see types/game.ts note
     requiresManualReview: false, maxPoints: 10,
@@ -485,7 +485,7 @@ q6: {
   },
   q32: {
     id: 'q32', moduleId: 'module-10-plastic-recycling', order: 32, responseType: 'classification_matrix',
-    prompt: bi('Sort each plastic item into Recyclable or Non-Recyclable.', 'Susun setiap item plastik ke dalam Boleh Dikitar Semula atau Tidak Boleh Dikitar Semula.'),
+    prompt: bi('Which plastic is recyclable and which are non-recyclable. Drag the answers into the right box.', 'Plastik manakah yang boleh dikitar semula dan yang manakah tidak. Seret jawapan ke dalam kotak yang betul.'),
     categories: [
       { id: 'recyclable', label: bi('Recyclable', 'Boleh Dikitar Semula') },
       { id: 'non_recyclable', label: bi('Non-Recyclable', 'Tidak Boleh Dikitar Semula') },

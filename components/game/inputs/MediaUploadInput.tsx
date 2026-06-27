@@ -3,54 +3,45 @@
 // Two modes:
 //   • SINGLE (default) — one photo or one video, captured via live camera
 //     (getUserMedia) or a native file input. Bytes upload straight to Supabase
-//     Storage. This is the original behaviour, unchanged.
+//     Storage. Live camera now has a large preview, a front/back FLIP button,
+//     and a mirrored selfie view so the team can frame themselves.
 //   • MULTI-PHOTO — when question.photoSteps is set, the team adds one photo
 //     per step on a single page (e.g. Q29 C-A-L-M). All photos upload on
 //     submit; their URLs are stored in response_data.photos[] and media_url is
 //     set to the first photo so existing single-media views still resolve.
 //
 // Either way this just collects an answer and calls onAnswer once. Grading is
-// unchanged (Q29 stays manual review, 10 pts).
-
+// unchanged (media questions stay manual review, 10 pts).
 'use client';
-
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import type { MediaUploadQuestion } from '@/types/game';
 import type { QuestionInputProps } from '../QuestionInputSwitch';
 import { SubmitButton } from './shared';
-
 const BUCKET = 'submissions';
-
 type Props = QuestionInputProps<'media_upload'> & { question: MediaUploadQuestion };
-
 export function MediaUploadInput(props: Props) {
   const steps = props.question.photoSteps;
   if (steps && steps.length > 0) return <MultiPhotoUpload {...props} />;
   return <SingleMediaUpload {...props} />;
 }
-
 /* ------------------------------------------------------------------ */
 /* MULTI-PHOTO: one photo per step, all on one page                   */
 /* ------------------------------------------------------------------ */
-
 function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
   const { t, tx } = useLanguage();
   const steps = question.photoSteps ?? [];
-
   const [files, setFiles] = useState<Record<string, File>>({});
   const [previews, setPreviews] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   useEffect(
     () => () => {
       Object.values(previews).forEach((u) => URL.revokeObjectURL(u));
     },
     [previews]
   );
-
   function pick(stepId: string, f: File | null) {
     if (!f) return;
     setPreviews((prev) => {
@@ -59,7 +50,6 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
     });
     setFiles((prev) => ({ ...prev, [stepId]: f }));
   }
-
   function removePhoto(stepId: string) {
     setPreviews((prev) => {
       if (prev[stepId]) URL.revokeObjectURL(prev[stepId]);
@@ -73,10 +63,8 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
       return next;
     });
   }
-
   const done = Object.keys(files).length;
   const allDone = steps.every((s) => files[s.id]);
-
   async function handleSubmit() {
     if (!allDone) return;
     setUploading(true);
@@ -103,11 +91,9 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
       setUploading(false);
     }
   }
-
   return (
     <div>
       <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>
-
       <div className="space-y-3">
         {steps.map((s, i) => {
           const preview = previews[s.id];
@@ -122,7 +108,6 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
                   <span className="ml-auto text-xs font-semibold text-emerald-600">✓</span>
                 )}
               </div>
-
               {preview ? (
                 <div className="space-y-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -170,13 +155,10 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
           );
         })}
       </div>
-
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-
       <p className="mt-3 text-center text-xs text-slate-400">
         {tx({ en: `${done} of ${steps.length} photos added`, bm: `${done} daripada ${steps.length} foto ditambah` })}
       </p>
-
       <SubmitButton
         disabled={!allDone || disabled || uploading}
         onClick={handleSubmit}
@@ -185,32 +167,32 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
     </div>
   );
 }
-
 /* ------------------------------------------------------------------ */
-/* SINGLE: original one-photo / one-video capture (unchanged)         */
+/* SINGLE: one-photo / one-video capture with big preview + flip      */
 /* ------------------------------------------------------------------ */
-
 function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   const isPhoto = question.mediaKind === 'photo';
   const { t, tx } = useLanguage();
-
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const [cameraOn, setCameraOn] = useState(false);
   const [recording, setRecording] = useState(false);
   const [elapsed, setElapsed] = useState(0);
-
+  const [facing, setFacing] = useState<'user' | 'environment'>('environment');
+  const [ready, setReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
   useEffect(() => () => stopCamera(), []); // cleanup on unmount
 
+  function stopTracks() {
+    streamRef.current?.getTracks().forEach((tr) => tr.stop());
+    streamRef.current = null;
+  }
   function stopCamera() {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -219,40 +201,59 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
     if (recorderRef.current && recorderRef.current.state !== 'inactive') {
       try { recorderRef.current.stop(); } catch { /* noop */ }
     }
-    streamRef.current?.getTracks().forEach((tr) => tr.stop());
-    streamRef.current = null;
+    stopTracks();
     setRecording(false);
     setCameraOn(false);
+    setReady(false);
     setElapsed(0);
   }
-
-  async function startCamera() {
+  // Open a stream for the requested facing; fall back to any camera if the
+  // device can't honour the exact facingMode (common on laptops).
+  async function openStream(want: 'user' | 'environment') {
+    try {
+      return await navigator.mediaDevices.getUserMedia({ video: { facingMode: want }, audio: !isPhoto });
+    } catch {
+      return await navigator.mediaDevices.getUserMedia({ video: true, audio: !isPhoto });
+    }
+  }
+  function attach(stream: MediaStream) {
+    streamRef.current = stream;
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play().catch(() => { /* autoplay guard */ });
+      }
+    }, 0);
+  }
+  async function startCamera(want: 'user' | 'environment' = facing) {
     setError(null);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
-        audio: !isPhoto,
-      });
-      streamRef.current = stream;
+      const stream = await openStream(want);
+      stopTracks();
+      setFacing(want);
       setCameraOn(true);
-      setTimeout(() => {
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play().catch(() => { /* autoplay guard */ });
-        }
-      }, 0);
+      attach(stream);
     } catch {
-      setError('Camera not available — use “upload a file” below instead.');
+      setError(tx({ en: 'Camera not available — use “upload a file” below instead.', bm: 'Kamera tidak tersedia — guna “muat naik fail” di bawah.' }));
       setCameraOn(false);
     }
   }
-
+  async function flipCamera() {
+    if (recording) return; // don't switch mid-recording
+    const next = facing === 'user' ? 'environment' : 'user';
+    setReady(false);
+    let stream: MediaStream | null = null;
+    try { stream = await openStream(next); } catch { stream = null; }
+    if (!stream) return;
+    stopTracks();
+    setFacing(next);
+    attach(stream);
+  }
   function setCaptured(f: File) {
     setFile(f);
     setPreviewUrl(URL.createObjectURL(f));
     stopCamera();
   }
-
   function capturePhoto() {
     const v = videoRef.current;
     if (!v) return;
@@ -261,14 +262,13 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
     canvas.height = v.videoHeight || 720;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    ctx.drawImage(v, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(v, 0, 0, canvas.width, canvas.height); // saved un-mirrored (true orientation)
     canvas.toBlob(
       (blob) => { if (blob) setCaptured(new File([blob], `photo-${Date.now()}.jpg`, { type: 'image/jpeg' })); },
       'image/jpeg',
       0.9
     );
   }
-
   function startRecording() {
     if (!streamRef.current) return;
     chunksRef.current = [];
@@ -296,7 +296,6 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
       });
     }, 1000);
   }
-
   function stopRecording() {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -307,13 +306,11 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
     }
     setRecording(false);
   }
-
   function reset() {
     setFile(null);
     setPreviewUrl(null);
     setError(null);
   }
-
   async function handleSubmit() {
     if (!file) return;
     setUploading(true);
@@ -335,14 +332,11 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
       setUploading(false);
     }
   }
-
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const ss = String(elapsed % 60).padStart(2, '0');
-
   return (
     <div>
       <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>
-
       {file ? (
         <div className="space-y-3">
           {isPhoto ? (
@@ -357,12 +351,34 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
         </div>
       ) : cameraOn ? (
         <div className="space-y-3">
-          <div className="relative overflow-hidden rounded-xl bg-slate-900">
-            <video ref={videoRef} playsInline muted className="w-full" />
+          <div className="relative flex min-h-[300px] w-full items-center justify-center overflow-hidden rounded-xl bg-slate-900">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              onLoadedMetadata={() => setReady(true)}
+              className="max-h-[70vh] w-full object-contain"
+              style={{ transform: facing === 'user' ? 'scaleX(-1)' : 'none' }}
+            />
+            {!ready && (
+              <span className="absolute text-sm text-white/70">
+                {tx({ en: 'Starting camera…', bm: 'Memulakan kamera…' })}
+              </span>
+            )}
             {recording && (
               <div className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-black/60 px-2.5 py-1 text-xs font-semibold tabular-nums text-white">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-red-500" /> {mm}:{ss}
               </div>
+            )}
+            {!recording && (
+              <button
+                type="button"
+                onClick={flipCamera}
+                className="absolute right-3 top-3 rounded-full bg-black/55 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur transition hover:bg-black/70"
+              >
+                🔄 {tx({ en: 'Flip', bm: 'Tukar' })}
+              </button>
             )}
           </div>
           <div className="flex gap-2">
@@ -372,32 +388,35 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
               </button>
             ) : !recording ? (
               <button type="button" onClick={startRecording} className="flex-1 rounded-xl bg-[#E4002B] px-4 py-3 text-sm font-semibold text-white">
-                ● Record
+                ● {tx({ en: 'Record', bm: 'Rakam' })}
               </button>
             ) : (
               <button type="button" onClick={stopRecording} className="flex-1 rounded-xl bg-slate-800 px-4 py-3 text-sm font-semibold text-white">
-                ■ Stop
+                ■ {tx({ en: 'Stop', bm: 'Berhenti' })}
               </button>
             )}
             <button type="button" onClick={stopCamera} className="rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-600">
-              Cancel
+              {tx({ en: 'Cancel', bm: 'Batal' })}
             </button>
           </div>
+          <p className="text-center text-xs text-slate-400">
+            {tx({ en: 'Tip: tap Flip to switch front / back camera so everyone fits in frame.', bm: 'Petua: tekan Tukar untuk bertukar kamera depan / belakang supaya semua orang masuk dalam bingkai.' })}
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           <button
             type="button"
-            onClick={startCamera}
+            onClick={() => startCamera()}
             disabled={disabled}
             className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 px-6 py-8 text-sm text-slate-600 transition hover:border-[#0B2545]"
           >
             <span className="text-3xl">{isPhoto ? '📷' : '🎥'}</span>
             <span className="font-medium">{isPhoto ? t('input.takePhoto') : t('input.recordVideo')}</span>
-            <span className="text-xs text-slate-400">Opens your device camera</span>
+            <span className="text-xs text-slate-400">{tx({ en: 'Opens your device camera', bm: 'Membuka kamera peranti anda' })}</span>
           </button>
           <label className="block cursor-pointer text-center text-xs font-medium text-slate-500 underline">
-            or upload a file instead
+            {tx({ en: 'or upload a file instead', bm: 'atau muat naik fail sebaliknya' })}
             <input
               type="file"
               accept={isPhoto ? 'image/*' : 'video/*'}
@@ -412,9 +431,7 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
           </label>
         </div>
       )}
-
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
-
       <SubmitButton disabled={!file || disabled || uploading} onClick={handleSubmit} label={uploading ? t('input.uploading') : undefined} />
     </div>
   );

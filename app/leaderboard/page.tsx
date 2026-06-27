@@ -1,14 +1,16 @@
 // app/leaderboard/page.tsx
 //
-// Standalone projector screen: the live leaderboard drawn as racing snakes.
-// Reads the same realtime data the in-app leaderboard uses, top 5.
+// Standalone projector screen for the live leaderboard (hearts theme).
+// Pulls live scores for ALL teams via useRealtimeLeaderboard() and renders
+// the full-screen HeartsLeaderboard. Open in a new tab from the admin
+// dashboard and cast it to the room screen.
 
 'use client';
 
 import { useRealtimeLeaderboard } from '@/lib/hooks/useRealtimeLeaderboard';
-import { SnakeLeaderboard } from '@/components/team/SnakeLeaderboard';
+import { HeartsLeaderboard } from '@/components/team/HeartsLeaderboard';
 
 export default function LeaderboardScreen() {
   const { teams, loading } = useRealtimeLeaderboard();
-  return <SnakeLeaderboard teams={teams} loading={loading} />;
+  return <HeartsLeaderboard teams={teams} loading={loading} />;
 }

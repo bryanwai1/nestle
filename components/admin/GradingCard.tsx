@@ -118,9 +118,37 @@ function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
     }
 
     case 'hazard_canvas': {
-      const taps = (submission.response_data.taps as Array<{ x: number; y: number }>) ?? [];
       const question = QUESTIONS[submission.question_id];
-      const imageUrl = question && question.responseType === 'hazard_canvas' ? question.imageUrl : undefined;
+      const hq = question && question.responseType === 'hazard_canvas' ? question : undefined;
+      const data = submission.response_data as { taps?: Array<{ x: number; y: number }>; scenes?: Array<{ sceneIndex: number; taps: Array<{ x: number; y: number }> }> };
+      if (hq?.scenes && data.scenes) {
+        return (
+          <div className="space-y-3">
+            {data.scenes.map((scene, si) => {
+              const sceneConfig = hq.scenes![si];
+              const label = sceneConfig?.label;
+              const labelText = typeof label === 'object' ? label.en : (label ?? `Scene ${si + 1}`);
+              return (
+                <div key={si}>
+                  <p className="mb-1 text-xs font-semibold text-slate-500">{labelText} — {scene.taps.length} taps</p>
+                  <div className="relative overflow-hidden rounded-lg border border-slate-200" style={{ aspectRatio: '4 / 3' }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={sceneConfig.imageUrl} alt="" className="h-full w-full object-cover" />
+                    {scene.taps.map((t, i) => (
+                      <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#E4002B] text-center text-[9px] font-bold leading-4 text-white"
+                        style={{ left: `${t.x}%`, top: `${t.y}%`, width: 16, height: 16 }}>
+                        {i + 1}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      }
+      const taps = data.taps ?? [];
+      const imageUrl = hq?.imageUrl;
       return (
         <div className="relative overflow-hidden rounded-lg border border-slate-200" style={{ aspectRatio: '4 / 3' }}>
           {imageUrl && (
@@ -128,11 +156,8 @@ function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
             <img src={imageUrl} alt="" className="h-full w-full object-cover" />
           )}
           {taps.map((t, i) => (
-            <div
-              key={i}
-              className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#E4002B] text-center text-[9px] font-bold leading-4 text-white"
-              style={{ left: `${t.x}%`, top: `${t.y}%`, width: 16, height: 16 }}
-            >
+            <div key={i} className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white bg-[#E4002B] text-center text-[9px] font-bold leading-4 text-white"
+              style={{ left: `${t.x}%`, top: `${t.y}%`, width: 16, height: 16 }}>
               {i + 1}
             </div>
           ))}

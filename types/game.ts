@@ -88,19 +88,22 @@ export interface MediaUploadQuestion extends QuestionBase {
   photoSteps?: Array<{ id: string; label: Text }>; // when set: one photo per step (e.g. Q29 C-A-L-M)
 }
 
+export interface HazardScene {
+  imageUrl: string;
+  label: Text;
+  hazards: Array<{ id: string; x: number; y: number; radius: number; label: Text }>;
+  decoyZones: Array<{ id: string; x: number; y: number; radius: number }>;
+  targetHazardCount: number;
+}
 export interface HazardCanvasQuestion extends QuestionBase {
   responseType: 'hazard_canvas';
-  /** One workspace photo. x/y are percentages (0-100) of image width/height,
-   * not pixels, so the same coordinates stay valid at any render size. */
+  /** Legacy single-image fields — kept for backward compat, unused when scenes present */
   imageUrl: string;
-  /** The 10 genuine hazards a team needs to find. Labels are for the admin
-   * review screen only — players never see them. */
   hazards: Array<{ id: string; x: number; y: number; radius: number; label: Text }>;
-  /** The 5 "dummy elements to confuse them" — look hazard-like but aren't.
-   * Tapping one doesn't crash the flow, it just doesn't score (admin sees
-   * tap accuracy in the review card either way). */
   decoyZones: Array<{ id: string; x: number; y: number; radius: number }>;
-  targetHazardCount: number; // 10
+  targetHazardCount: number;
+  /** Multi-scene mode: player goes through each scene in order */
+  scenes?: HazardScene[];
 }
 
 export interface DragSequenceQuestion extends QuestionBase {
@@ -201,7 +204,7 @@ export type ResponseDataByType = {
   video_avoid: { text: string };
   video_identify_and_avoid: { text: string };
   media_upload: { uploadedAt: string; photos?: Array<{ stepId: string; url: string }> };
-  hazard_canvas: { taps: Array<{ x: number; y: number }> };
+  hazard_canvas: { taps?: Array<{ x: number; y: number }>; scenes?: Array<{ sceneIndex: number; taps: Array<{ x: number; y: number }> }> };
   drag_sequence: { order: string[] };
   drag_matrix: { matches: Record<string, string> }; // leftId -> rightId
   visual_sort: { selected: string[] }; // choice ids, language-independent

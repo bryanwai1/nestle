@@ -86,7 +86,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   // ===================== MODULE 1 — SAFE DRIVING =====================
   q1: {
     id: 'q1', moduleId: 'module-1-safe-driving', order: 1, responseType: 'multiple_choice',
-    prompt: bi('Wich are 6 critical vehicle component that will affect the safety of driving?', 'Apakah 6 komponen kritikal kenderaan yang menjejaskan keselamatan pemanduan?'),
+    prompt: bi('Which are the 6 critical vehicle components that will affect the safety of driving?', 'Apakah 6 komponen kritikal kenderaan yang menjejaskan keselamatan pemanduan?'),
     options: [
       bi('Brake, Lights, Wipers, Horn, Side mirrors, Tyres', 'Brek, Lampu, Pengelap cermin, Hon, Cermin sisi, Tayar'),
       bi('Brake, Fuel level, Wipers, Horn, Air-conditioning, Tyres', 'Brek, Paras minyak, Pengelap cermin, Hon, Penyaman udara, Tayar'),
@@ -100,7 +100,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   },
   q2: {
     id: 'q2', moduleId: 'module-1-safe-driving', order: 2, responseType: 'multiple_choice',
-    prompt: bi('While you are on a long-distance drive, What is the requird rest amount after every duration of drive?', 'Semasa perjalanan jauh, berapa kerap anda perlu berhenti berehat?'),
+    prompt: bi('While you are on a long-distance drive, what is the required rest break after each period of driving?', 'Semasa perjalanan jauh, berapa kerap anda perlu berhenti berehat?'),
     options: [
       bi('A 5-minute pause every hour', 'Berhenti 5 minit setiap sejam'),
       bi('A 15-minute break after every 2 hours of driving', 'Rehat 15 minit selepas setiap 2 jam memandu'),
@@ -115,7 +115,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
   q3: {
     id: 'q3', moduleId: 'module-1-safe-driving', order: 3, responseType: 'visual_sort',
     prompt: bi(
-      ' If you feel sleepy while driving, What should you do to avoid DOZING OFF while driving? (More than one answer)',
+      'If you feel sleepy while driving, what should you do to avoid DOZING OFF while driving? (More than one answer)',
       'Jika anda rasa mengantuk semasa memandu, tindakan manakah yang perlu diambil? Pilih SEMUA yang betul. '
     ),
     correctChoices: [
@@ -524,7 +524,7 @@ q6: {
   },
   q32: {
     id: 'q32', moduleId: 'module-10-plastic-recycling', order: 32, responseType: 'classification_matrix',
-    prompt: bi('Which plastic is recyclable and which are non-recyclable. Drag the answers into the right box.', 'Plastik manakah yang boleh dikitar semula dan yang manakah tidak. Seret jawapan ke dalam kotak yang betul.'),
+    prompt: bi('Which plastics are recyclable and which are non-recyclable? Drag the answers into the right box.', 'Plastik manakah yang boleh dikitar semula dan yang manakah tidak boleh? Seret jawapan ke dalam kotak yang betul.'),
     categories: [
       { id: 'recyclable', label: bi('Recyclable', 'Boleh Dikitar Semula') },
       { id: 'non_recyclable', label: bi('Non-Recyclable', 'Tidak Boleh Dikitar Semula') },

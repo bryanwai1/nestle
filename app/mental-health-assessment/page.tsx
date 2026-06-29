@@ -44,7 +44,7 @@ function bracketFor(score: number): 'low' | 'moderate' | 'high' | 'very_high' {
 
 const ADVICE: Record<string, { title: Text; tips: Text[] }> = {
   low: {
-    title: { en: 'You seem to be coping well', bm: 'Anda kelihatan mengawal keadaan dengan baik' },
+    title: { en: 'Your Stress Level is in control', bm: 'Tahap Tekanan Anda terkawal' },
     tips: [
       { en: 'Keep up regular exercise and 7\u20138 hours of sleep', bm: 'Teruskan bersenam secara berkala dan tidur 7\u20138 jam' },
       { en: 'Take short breaks during work', bm: 'Ambil rehat sekejap semasa bekerja' },
@@ -52,7 +52,7 @@ const ADVICE: Record<string, { title: Text; tips: Text[] }> = {
     ],
   },
   moderate: {
-    title: { en: 'There are some signs of stress worth watching', bm: 'Ada tanda tekanan yang perlu diberi perhatian' },
+    title: { en: 'You have minor signs of stress that requires attention', bm: 'Anda mempunyai tanda-tanda tekanan kecil yang memerlukan perhatian' },
     tips: [
       { en: 'Prioritize tasks instead of carrying everything at once', bm: 'Susun keutamaan tugas, jangan tanggung semuanya sekali gus' },
       { en: '5\u201310 minutes of deep breathing or relaxation daily', bm: '5\u201310 minit pernafasan dalam atau relaksasi setiap hari' },
@@ -61,7 +61,7 @@ const ADVICE: Record<string, { title: Text; tips: Text[] }> = {
     ],
   },
   high: {
-    title: { en: 'Your answers suggest a higher level of stress', bm: 'Jawapan anda menunjukkan tahap tekanan yang lebih tinggi' },
+    title: { en: 'Your stress level is increasing.', bm: 'Tahap tekanan anda semakin meningkat.' },
     tips: [
       { en: 'Consider lifestyle changes and lean on your support network', bm: 'Pertimbangkan perubahan gaya hidup dan dapatkan sokongan orang sekeliling' },
       { en: 'Speak with a trusted colleague, friend, or family member', bm: 'Berbual dengan rakan sekerja, kawan, atau ahli keluarga yang dipercayai' },
@@ -69,7 +69,7 @@ const ADVICE: Record<string, { title: Text; tips: Text[] }> = {
     ],
   },
   very_high: {
-    title: { en: "It's worth reaching out for support soon", bm: 'Eloknya dapatkan sokongan tidak lama lagi' },
+    title: { en: 'Seems like your stress level is in critical stage', bm: 'Nampaknya tahap tekanan anda berada di peringkat kritikal' },
     tips: [
       { en: 'Speak to a trusted friend or family member', bm: 'Berbual dengan kawan atau ahli keluarga yang dipercayai' },
       { en: 'Consider talking to a counsellor or doctor', bm: 'Pertimbangkan untuk berjumpa kaunselor atau doktor' },

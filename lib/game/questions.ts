@@ -232,14 +232,14 @@ q6: {
   q18: {
     id: 'q18', moduleId: 'module-2-stf', order: 18, responseType: 'drag_sequence', imageUrl: '/q18-shelf.png',
     prompt: bi(
-      'A worker needs to unload a product from the rack, What are the safe steps in sequence to unload the product safely',
-      'Seorang pekerja perlu mengambil produk dari rak. Susun langkah keselamatan ini mengikut turutan yang betul.'
+      'This scenario is in a Key Account Customer Warehouse. Besides using a forklift to unload, if sales staff have to unload manually with a ladder, what are the safe steps in sequence?',
+      'Senario ini berlaku di Gudang Pelanggan Key Account. Selain menggunakan forklift, jika kakitangan jualan perlu membuat penurunan secara manual dengan tangga, apakah langkah selamat yang perlu diambil mengikut turutan?'
     ),
     steps: [
-      { id: 'clear_aisles', label: bi('Clear the aisle / remove obstructions', 'Pastikan laluan bersih / alihkan halangan'), imageUrl: '/q18/aisle.jpg' },
+      { id: 'clear_aisles', label: bi('Clear the aisle / remove block stacking along the aisle', 'Bersihkan laluan / alihkan susunan kotak di sepanjang laluan'), imageUrl: '/q18/aisle.jpg' },
       { id: 'inspect_ladder', label: bi('Check the ladder is in good condition', 'Periksa keadaan tangga'), imageUrl: '/q18/ladder.jpg' },
       { id: 'hold_ladder', label: bi('Have someone hold the ladder', 'Minta seseorang pegang tangga'), imageUrl: '/q18/hold.jpg' },
-      { id: 'confirm_floor', label: bi('Make sure the floor is not slippery', 'Pastikan lantai tidak licin'), imageUrl: '/q18/floor.jpg' },
+      { id: 'confirm_floor', label: bi('Ensure the aisle is clear and clean', 'Pastikan laluan bersih dan kemas'), imageUrl: '/q18/floor.jpg' },
     ],
     correctOrder: ['clear_aisles', 'inspect_ladder', 'hold_ladder', 'confirm_floor'],
     requiresManualReview: false, maxPoints: 10,
@@ -315,8 +315,8 @@ q6: {
   q33: {
     id: 'q33', moduleId: 'module-3-heart-health', order: 33, responseType: 'drag_sequence',
     prompt: bi(
-      'Rearrange the correct sequence while performing CPR (DRABC).',
-      'Susun semula urutan yang betul semasa melakukan CPR (DRABC).'
+      'Rearrange the correct sequence while performing CPR.',
+      'Susun semula urutan yang betul semasa melakukan CPR.'
     ),
     steps: [
       { id: 'danger', label: bi('Danger', 'Bahaya') },

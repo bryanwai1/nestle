@@ -25,6 +25,7 @@ export function CreateTeamForm() {
   const [member2, setMember2] = useState('');
   const [member3, setMember3] = useState('');
   const [sessionGroup, setSessionGroup] = useState<'morning' | 'afternoon'>('morning');
+  const [region, setRegion] = useState('');
   const [existingTeams, setExistingTeams] = useState<ExistingTeam[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export function CreateTeamForm() {
     }
     setSubmitting(true);
     try {
-      await createTeam(member1, member2, member3, sessionGroup);
+      await createTeam(member1, member2, member3, sessionGroup, region);
       router.push('/play');
     } catch (err) {
       setError(err instanceof Error ? err.message : t('team.createError'));
@@ -117,6 +118,28 @@ export function CreateTeamForm() {
             <select value={sessionGroup} onChange={(e) => setSessionGroup(e.target.value as 'morning' | 'afternoon')} className="w-full bg-transparent py-2.5 text-sm outline-none">
               <option value="morning">{t('team.morningSession')}</option>
               <option value="afternoon">{t('team.afternoonSession')}</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 focus-within:border-[#0B2545]">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-400"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+            <select value={region} onChange={(e) => setRegion(e.target.value)} className="w-full bg-transparent py-2.5 text-sm outline-none">
+              <option value="">Select Region</option>
+              <option>Johor</option>
+              <option>Kedah</option>
+              <option>Kelantan</option>
+              <option>Melaka</option>
+              <option>Negeri Sembilan</option>
+              <option>Pahang</option>
+              <option>Perak</option>
+              <option>Perlis</option>
+              <option>Pulau Pinang</option>
+              <option>Sabah</option>
+              <option>Sarawak</option>
+              <option>Selangor</option>
+              <option>Terengganu</option>
+              <option>Kuala Lumpur</option>
+              <option>Putrajaya</option>
+              <option>Labuan</option>
             </select>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}

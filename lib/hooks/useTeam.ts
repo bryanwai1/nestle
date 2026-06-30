@@ -51,13 +51,14 @@ export function useTeam() {
   /** Calls the create_team() RPC — atomic, race-condition-safe numbering.
    * See supabase/migrations/0001_init.sql for why this isn't a plain insert. */
   const createTeam = useCallback(
-    async (member1: string, member2: string, member3: string, sessionGroup: 'morning' | 'afternoon', region: string) => {
+    async (member1: string, member2: string, member3: string, sessionGroup: 'morning' | 'afternoon', region: string, member4?: string) => {
       const { data, error } = await supabase.rpc('create_team', {
         p_member_1: member1,
         p_member_2: member2,
         p_member_3: member3,
         p_session_group: sessionGroup,
         p_region: region,
+        p_member_4: member4 ?? null,
       });
       if (error || !data) throw error ?? new Error('Could not create team');
       localStorage.setItem(STORAGE_KEY, JSON.stringify({ id: data.id, team_number: data.team_number }));

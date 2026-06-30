@@ -1,8 +1,10 @@
 // components/team/CreateTeamForm.tsx
 //
-// CREATE flow = three member-name fields; the team number is assigned
-// automatically (read-only). JOIN flow = dropdown of existing teams.
-// Logic is unchanged — this pass only restyles to match the SHE Day mockup.
+// CREATE flow = 3 required member-name fields + an optional 4th; the team
+// number is assigned automatically (read-only). JOIN flow = dropdown of
+// existing teams. Session slot (region + date + time, combined into one
+// string) replaces the old plain region dropdown and the old morning/
+// afternoon dropdown — both are now encoded together in the session label.
 
 'use client';
 
@@ -15,6 +17,27 @@ import { useLanguage } from '@/lib/i18n/LanguageContext';
 type Mode = 'create' | 'join';
 type ExistingTeam = { id: string; team_number: number };
 
+const SESSION_OPTIONS = [
+  'ECR 1 - 1 Jul 2026 (9am-12.30pm)',
+  'ECR 1 - 1 Jul 2026 (1pm-5pm)',
+  'Sabah - 3 Jul 2026 (1pm-5pm)',
+  'ECR2(KB) - 6 Jul 2026 (1pm-5pm)',
+  'ECR2(KT) - 7 Jul 2026 (1pm-5pm)',
+  'Southern - 14 Jul 2026 (9am-12.30pm)',
+  'Southern - 14 Jul 2026 (1pm-5pm)',
+  'Northern 2 - 22 Jul 2026 (1pm-5pm)',
+  'Central 1 - 4 Aug 2026 (9am-12.30pm)',
+  'Central 1 - 4 Aug 2026 (1pm-5pm)',
+  'Central 1 - 5 Aug 2026 (9am-12.30pm)',
+  'Central 1 - 5 Aug 2026 (1pm-5pm)',
+  'Central 2 - 6 Aug 2026 (9am-12.30pm)',
+  'Central 2 - 6 Aug 2026 (1pm-5pm)',
+  'Sarawak - 14 Aug 2026 (9am-12.30pm)',
+  'Sarawak - 14 Aug 2026 (1pm-5pm)',
+  'Northern 1 - 2 Sep 2026 (9am-12.30pm)',
+  'Northern 1 - 2 Sep 2026 (1pm-5pm)',
+];
+
 const PersonIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0 text-slate-400"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>
 );
@@ -24,7 +47,8 @@ export function CreateTeamForm() {
   const [member1, setMember1] = useState('');
   const [member2, setMember2] = useState('');
   const [member3, setMember3] = useState('');
-  const [sessionGroup, setSessionGroup] = useState<'morning' | 'afternoon'>('morning');
+  const [member4, setMember4] = useState('');
+  const [showMember4, setShowMember4] = useState(false);
   const [region, setRegion] = useState('');
   const [existingTeams, setExistingTeams] = useState<ExistingTeam[]>([]);
   const [selectedTeamId, setSelectedTeamId] = useState('');
@@ -53,7 +77,7 @@ export function CreateTeamForm() {
     }
     setSubmitting(true);
     try {
-      await createTeam(member1, member2, member3, sessionGroup, region);
+      await createTeam(member1, member2, member3, 'morning', region, showMember4 ? member4 : undefined);
       router.push('/play');
     } catch (err) {
       setError(err instanceof Error ? err.message : t('team.createError'));
@@ -107,39 +131,36 @@ export function CreateTeamForm() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="mt-0.5 shrink-0"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
             <span>{t('team.autoNumberNote')}</span>
           </div>
+          <p className="text-xs text-slate-500">
+            Please write your name as it appears on your ID.
+          </p>
           {members.map(([val, set, ph], i) => (
             <div key={i} className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 focus-within:border-[#0B2545]">
               <PersonIcon />
               <input type="text" placeholder={ph} value={val} onChange={(e) => set(e.target.value)} className="w-full bg-transparent py-2.5 text-sm outline-none" />
             </div>
           ))}
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 focus-within:border-[#0B2545]">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-400"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            <select value={sessionGroup} onChange={(e) => setSessionGroup(e.target.value as 'morning' | 'afternoon')} className="w-full bg-transparent py-2.5 text-sm outline-none">
-              <option value="morning">{t('team.morningSession')}</option>
-              <option value="afternoon">{t('team.afternoonSession')}</option>
-            </select>
-          </div>
+          {showMember4 ? (
+            <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 focus-within:border-[#0B2545]">
+              <PersonIcon />
+              <input type="text" placeholder="Member 4 name (as on ID)" value={member4} onChange={(e) => setMember4(e.target.value)} className="w-full bg-transparent py-2.5 text-sm outline-none" />
+              <button type="button" onClick={() => { setShowMember4(false); setMember4(''); }} className="shrink-0 text-xs font-medium text-slate-400 underline">
+                Remove
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => setShowMember4(true)}
+              className="w-full rounded-xl border border-dashed border-slate-300 py-2.5 text-sm font-medium text-slate-500 transition hover:border-[#0B2545] hover:text-[#0B2545]">
+              + Add a 4th team member
+            </button>
+          )}
           <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 focus-within:border-[#0B2545]">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-400"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
             <select value={region} onChange={(e) => setRegion(e.target.value)} className="w-full bg-transparent py-2.5 text-sm outline-none">
-              <option value="">Select Region</option>
-              <option>Johor</option>
-              <option>Kedah</option>
-              <option>Kelantan</option>
-              <option>Melaka</option>
-              <option>Negeri Sembilan</option>
-              <option>Pahang</option>
-              <option>Perak</option>
-              <option>Perlis</option>
-              <option>Pulau Pinang</option>
-              <option>Sabah</option>
-              <option>Sarawak</option>
-              <option>Selangor</option>
-              <option>Terengganu</option>
-              <option>Kuala Lumpur</option>
-              <option>Putrajaya</option>
-              <option>Labuan</option>
+              <option value="">Select Session</option>
+              {SESSION_OPTIONS.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
             </select>
           </div>
           {error && <p className="text-sm text-red-600">{error}</p>}

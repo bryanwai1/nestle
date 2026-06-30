@@ -41,13 +41,34 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
   const [submitting, setSubmitting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [frozen, setFrozen] = useState(false);
 
   const current = questions[index];
 
   const timer = useGameTimer({
     durationSeconds: gameModule?.timerSeconds ?? 600,
     onExpire: () => finishModule(),
+    paused: frozen,
   });
+  useEffect(() => {
+    let active = true;
+    async function loadFrozen() {
+      const { data } = await (supabase as any).from('event_control').select('frozen').eq('id', 1).single();
+      if (active && data) setFrozen(Boolean(data.frozen));
+    }
+    loadFrozen();
+    const channel = supabase
+      .channel('event_control_question_runner')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'event_control' }, (payload) => {
+        const next = (payload?.new as any)?.frozen;
+        if (typeof next === 'boolean') setFrozen(next);
+      })
+      .subscribe();
+    return () => {
+      active = false;
+      supabase.removeChannel(channel);
+    };
+  }, [supabase]);
 
   // ---- Resume: figure out where this team should pick up --------------------
   useEffect(() => {

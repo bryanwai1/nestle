@@ -115,7 +115,7 @@ export function BudgetCanvasInput({
     const img = (food as { imageUrl?: string }).imageUrl;
     return (
       <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%` }}>
-        <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-white/90 shadow">
+        <div className="pointer-events-auto relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-white/90 shadow">
           {img ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={img} alt="" className="h-7 w-7 object-contain" />
@@ -173,7 +173,7 @@ export function BudgetCanvasInput({
             <circle cx="100" cy="100" r="98" fill="none" stroke="#cbd5e1" strokeWidth="4" />
           </svg>
 
-          <div className="absolute inset-0">
+          <div className="pointer-events-none absolute inset-0">
             {question.quadrants.map((q) => {
               const items = placedIn(q.id);
               const positions = iconPositions(q.id, items.length);

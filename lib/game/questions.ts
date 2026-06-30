@@ -207,6 +207,7 @@ q6: {
       'Ambil gambar sebenar bahaya yang anda nampak sekarang, kemudian terangkan dalam satu ayat.'
     ),
     mediaKind: 'photo',
+    requiresDescription: true,
     requiresManualReview: true, maxPoints: 10,
   },
   q17: {
@@ -215,23 +216,23 @@ q6: {
       'Tap every hazard you can find in each photo. Go through all 3 scenes. Each photo has 7 hazards, max 7 taps. If you tap the wrong spot, one point will be deducted.',
       'Ketik setiap bahaya yang anda jumpa dalam setiap gambar. Lalui kesemua 3 senario. Setiap gambar mempunyai 7 bahaya, maksimum 7 ketikan. Jika anda ketik tempat yang salah, satu mata akan ditolak.'
     ),
-    imageUrl: '/hazards/warehouse-forklift.jpg',
+    imageUrl: '/hazards/warehouse-forklift.png',
     targetHazardCount: 7,
     hazards: [],
     decoyZones: [],
     scenes: [
       {
-        imageUrl: '/hazards/warehouse-forklift.jpg',
+        imageUrl: '/hazards/warehouse-forklift.png',
         label: bi('Warehouse', 'Gudang'),
         targetHazardCount: 7,
         hazards: [
-          { id: 'w1', x: 50, y: 78, radius: 10, label: bi('Liquid spill on floor', 'Cecair tumpah di lantai') },
-          { id: 'w2', x: 10, y: 55, radius: 10, label: bi('Unstable leaning stack of boxes', 'Timbunan kotak condong tidak stabil') },
-          { id: 'w3', x: 22, y: 52, radius: 8, label: bi('Pedestrian near forklift distracted by phone', 'Pejalan kaki berhampiran forklift leka dengan telefon') },
-          { id: 'w4', x: 48, y: 45, radius: 9, label: bi('Forklift operating in congested aisle', 'Forklift beroperasi di laluan sempit') },
-          { id: 'w5', x: 88, y: 72, radius: 9, label: bi('Loose broken wooden pallets on floor', 'Palet kayu rosak di lantai') },
-          { id: 'w6', x: 78, y: 62, radius: 8, label: bi('Fire extinguisher blocked by boxes', 'Alat pemadam api disekat kotak') },
-          { id: 'w7', x: 82, y: 50, radius: 9, label: bi('Boxes protruding into aisle', 'Kotak mencerobohi laluan') },
+          { id: 'w1', x: 48, y: 80, radius: 10, label: bi('Large water spill on the floor', 'Tumpahan air besar di lantai') },
+          { id: 'w2', x: 10, y: 50, radius: 10, label: bi('Unstable stacked boxes', 'Timbunan kotak tidak stabil') },
+          { id: 'w3', x: 25, y: 52, radius: 8, label: bi('Worker looking at phone while walking', 'Pekerja melihat telefon semasa berjalan') },
+          { id: 'w4', x: 88, y: 80, radius: 9, label: bi('Loose wooden pallets and broken wood pieces', 'Palet kayu longgar dan kepingan kayu pecah') },
+          { id: 'w5', x: 80, y: 20, radius: 9, label: bi('Box falling from the shelf', 'Kotak jatuh dari rak') },
+          { id: 'w6', x: 78, y: 55, radius: 8, label: bi('Fire extinguisher blocked', 'Alat pemadam api disekat') },
+          { id: 'w7', x: 12, y: 75, radius: 8, label: bi('Loose cable or hose on the floor', 'Kabel atau hos longgar di lantai') },
         ],
         decoyZones: [],
       },

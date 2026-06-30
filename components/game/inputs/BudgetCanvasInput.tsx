@@ -2,13 +2,17 @@
 // components/game/inputs/BudgetCanvasInput.tsx
 //
 // "Suku-Suku Separuh" healthy-plate builder — ROUND plate, ½ veg/fruit,
-// ¼ protein, ¼ carbs. Players may place ANY food in ANY section (free
+// ¼ protein, ¼ carbs. Players may place ANY food in ANY wedge (free
 // placement); correctness is judged at grading time, not blocked here.
 //
-// Layout: the round plate is a clean DROP TARGET (each wedge shows a count and
-// highlights on hover). The food you place shows in tidy section cards BELOW
-// the plate, so chips wrap normally and never overflow the circle. Cost
-// tracking, the tray, grading and onAnswer are unchanged.
+// The plate itself IS the drop target — each wedge is a real SVG pie-slice
+// <path> used both for the visible color AND the pointer-drop hit area, so
+// food dropped visually inside a wedge always registers in that same wedge
+// (previously a rectangular overlay grid didn't match the diagonal wedge
+// edges, so drops near the center could register in the wrong wedge).
+// Food placed in a wedge renders as small image icons inside that wedge.
+// No text labels on the plate (½ / ¼ / ¼ proportions only — never which
+// food category belongs where, since that's the answer being graded).
 
 'use client';
 
@@ -19,24 +23,24 @@ import type { QuestionInputProps } from '../QuestionInputSwitch';
 import { usePointerDrag } from './dragdrop';
 import { SubmitButton } from './shared';
 
-const EMOJI: Record<string, string> = {
-  f1: '🥦', f2: '🍌', f3: '🍎', f4: '🍉',
-  f5: '🍗', f6: '🥚', f7: '🐟', f8: '🧊',
-  f9: '🍚', f10: '🍞', f11: '🍠',
-};
-
 const COLUMN_ORDER = ['protein', 'veg_fruit', 'carb'];
 
-const SECTION_TINT: Record<string, string> = {
-  veg_fruit: 'border-[#9ec06a] bg-[#C0DD97]/40',
-  protein: 'border-[#e07d59] bg-[#F0997B]/35',
-  carb: 'border-[#e0a945] bg-[#FAC775]/40',
+const WEDGE_FILL: Record<string, string> = {
+  veg_fruit: '#C0DD97',
+  protein: '#F0997B',
+  carb: '#FAC775',
 };
 
-const SECTION_SWATCH: Record<string, string> = {
-  veg_fruit: 'bg-[#C0DD97]',
-  protein: 'bg-[#F0997B]',
-  carb: 'bg-[#FAC775]',
+const WEDGE_PATH: Record<string, string> = {
+  veg_fruit: 'M100,100 L100,2 A98,98 0 0,0 100,198 Z',
+  protein: 'M100,100 L100,2 A98,98 0 0,1 198,100 Z',
+  carb: 'M100,100 L198,100 A98,98 0 0,1 100,198 Z',
+};
+
+const WEDGE_ICON_ORIGIN: Record<string, { x: number; y: number }> = {
+  veg_fruit: { x: 27, y: 50 },
+  protein: { x: 70, y: 30 },
+  carb: { x: 70, y: 70 },
 };
 
 export function BudgetCanvasInput({
@@ -45,15 +49,13 @@ export function BudgetCanvasInput({
   onAnswer,
 }: QuestionInputProps<'budget_canvas'> & { question: BudgetCanvasQuestion }) {
   const { tx } = useLanguage();
-  const [placed, setPlaced] = useState<Record<string, string>>({}); // foodId -> quadrantId
+  const [placed, setPlaced] = useState<Record<string, string>>({});
 
   const foodById = useMemo(
     () => Object.fromEntries(question.foodCards.map((f) => [f.id, f])),
     [question.foodCards]
   );
 
-  // Free placement: any food can go in any section. Wrong placement is judged
-  // at grading, not blocked here.
   const { startDrag, draggingItem, hoverZone } = usePointerDrag((foodId, zoneId) => {
     if (!foodById[foodId]) return;
     setPlaced((p) => {
@@ -78,13 +80,12 @@ export function BudgetCanvasInput({
   );
   const overBudget = totalCost > question.budgetLimitRM;
 
-  const quadrant = (id: string) => question.quadrants.find((q) => q.id === id);
   const placedIn = (qid: string) =>
     Object.entries(placed).filter(([, q]) => q === qid).map(([fid]) => foodById[fid]);
   const tray = question.foodCards.filter((f) => !placed[f.id]);
   const allSectionsFilled = question.quadrants.every((q) => placedIn(q.id).length > 0);
 
-  const FoodChip = ({ id, mini = false }: { id: string; mini?: boolean }) => {
+  const FoodChip = ({ id }: { id: string }) => {
     const food = foodById[id];
     const img = (food as { imageUrl?: string }).imageUrl;
     return (
@@ -99,97 +100,97 @@ export function BudgetCanvasInput({
       >
         {img ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={img} alt="" className={mini ? 'h-7 w-7 object-contain' : 'h-9 w-9 object-contain'} />
+          <img src={img} alt="" className="h-9 w-9 object-contain" />
         ) : (
-          <span className={mini ? 'text-base' : 'text-xl'}>{EMOJI[id] ?? '🍽️'}</span>
+          <span className="text-xl">🍽️</span>
         )}
-        <span className={`font-medium leading-tight text-slate-700 ${mini ? 'text-[10px]' : 'text-xs'}`}>{tx(food.label)}</span>
-        {!mini && <span className="ml-auto text-[10px] font-semibold text-slate-400">RM{food.costRM}</span>}
+        <span className="text-xs font-medium leading-tight text-slate-700">{tx(food.label)}</span>
+        <span className="ml-auto text-[10px] font-semibold text-slate-400">RM{food.costRM}</span>
       </button>
     );
   };
 
-  // A placed chip = draggable FoodChip (drag between sections / back to tray)
-  // plus a ✕ to remove. Lives in the section cards below the plate.
-  const PlacedChip = ({ id }: { id: string }) => (
-    <div className="relative">
-      <FoodChip id={id} mini />
-      <button
-        type="button"
-        disabled={disabled}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => removePlaced(id)}
-        aria-label="Remove"
-        className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-slate-700 text-[9px] font-bold leading-none text-white shadow"
-      >
-        ✕
-      </button>
-    </div>
-  );
-
-  // Plate wedge = drop zone only: shows a count + hover highlight, no chips
-  // inside the circle (that was the overflow bug).
-  const PlateZone = ({ qid, className }: { qid: string; className: string }) => {
-    const q = quadrant(qid);
-    if (!q) return null;
-    const isHover = hoverZone === qid;
-    const count = placedIn(qid).length;
+  const PlatedIcon = ({ id, x, y }: { id: string; x: number; y: number }) => {
+    const food = foodById[id];
+    const img = (food as { imageUrl?: string }).imageUrl;
     return (
-      <div
-        data-dnd-zone={qid}
-        className={`${className} relative flex items-center justify-center overflow-hidden transition ${
-          isHover ? 'ring-4 ring-inset ring-emerald-400' : ''
-        }`}
-      >
-        {count > 0 && (
-          <span className="rounded-full bg-white/85 px-2 py-0.5 text-[11px] font-bold text-[#0B2545] shadow">
-            {count}
-          </span>
-        )}
-        {isHover && (
-          <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
-            drop here
-          </span>
-        )}
+      <div className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: `${x}%`, top: `${y}%` }}>
+        <div className="relative flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-white/90 shadow">
+          {img ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={img} alt="" className="h-7 w-7 object-contain" />
+          ) : (
+            <span className="text-base">🍽️</span>
+          )}
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => removePlaced(id)}
+            aria-label="Remove"
+            className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-700 text-[9px] font-bold leading-none text-white shadow"
+          >
+            ✕
+          </button>
+        </div>
       </div>
     );
   };
+
+  function iconPositions(qid: string, count: number) {
+    const origin = WEDGE_ICON_ORIGIN[qid];
+    if (count <= 1) return [origin];
+    const positions = [];
+    const ringRadiusPct = 11;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      positions.push({
+        x: origin.x + Math.cos(angle) * ringRadiusPct,
+        y: origin.y + Math.sin(angle) * ringRadiusPct,
+      });
+    }
+    return positions;
+  }
 
   return (
     <div>
-      {/* SVG plate: real ½ / ¼ / ¼ wedges. Invisible square drop-zones overlay
-          each wedge so dragging onto the plate still works. */}
       <div className="mx-auto mb-4 w-full max-w-sm">
         <div className="relative mx-auto aspect-square w-full">
           <svg viewBox="0 0 200 200" className="absolute inset-0 h-full w-full">
-            {/* veg/fruit = left half */}
-            <path d="M100,100 L100,2 A98,98 0 0,0 100,198 Z" fill="#C0DD97" />
-            {/* protein = top-right quarter */}
-            <path d="M100,100 L100,2 A98,98 0 0,1 198,100 Z" fill="#F0997B" />
-            {/* carb = bottom-right quarter */}
-            <path d="M100,100 L198,100 A98,98 0 0,1 100,198 Z" fill="#FAC775" />
-            {/* white cut lines */}
-            <line x1="100" y1="2" x2="100" y2="198" stroke="#fff" strokeWidth="2.5" />
-            <line x1="100" y1="100" x2="198" y2="100" stroke="#fff" strokeWidth="2.5" />
-            {/* rim */}
+            {question.quadrants.map((q) => (
+              <path
+                key={q.id}
+                data-dnd-zone={q.id}
+                d={WEDGE_PATH[q.id]}
+                fill={WEDGE_FILL[q.id] ?? '#e2e8f0'}
+                stroke="#fff"
+                strokeWidth="2.5"
+                style={{
+                  filter: hoverZone === q.id ? 'brightness(1.15)' : undefined,
+                  transition: 'filter 0.15s',
+                }}
+              />
+            ))}
             <circle cx="100" cy="100" r="98" fill="none" stroke="#cbd5e1" strokeWidth="4" />
           </svg>
 
-          {/* Drop zones over each wedge (count + hover only) */}
-          <div className="absolute inset-0 grid grid-cols-2">
-            <PlateZone qid="veg_fruit" className="col-span-1 row-span-2" />
-            <div className="col-span-1 grid grid-rows-2">
-              <PlateZone qid="protein" className="" />
-              <PlateZone qid="carb" className="" />
-            </div>
+          <div className="absolute inset-0">
+            {question.quadrants.map((q) => {
+              const items = placedIn(q.id);
+              const positions = iconPositions(q.id, items.length);
+              return items.map((f, i) => (
+                <PlatedIcon key={f.id} id={f.id} x={positions[i].x} y={positions[i].y} />
+              ));
+            })}
           </div>
+
+          {hoverZone && WEDGE_FILL[hoverZone] && (
+            <span className="absolute right-2 top-2 z-10 rounded-full bg-emerald-500 px-2 py-0.5 text-[9px] font-bold text-white">
+              drop here
+            </span>
+          )}
         </div>
-        <p className="mt-2 text-center text-[11px] text-slate-400">
-          ½ vegetables &amp; fruit · ¼ protein · ¼ carbs
-        </p>
       </div>
 
-      {/* Spent */}
       <div className={`mb-4 flex items-center justify-between rounded-xl border px-4 py-2 text-sm font-semibold ${
         overBudget ? 'border-red-300 bg-red-50 text-red-600' : 'border-emerald-200 bg-emerald-50 text-emerald-700'
       }`}>
@@ -197,53 +198,23 @@ export function BudgetCanvasInput({
         <span className="tabular-nums">RM{totalCost.toFixed(2)} / RM{question.budgetLimitRM}</span>
       </div>
 
-      {/* Your plate — placed items per section (wrap cleanly, also drop targets) */}
-      <div className="mb-4 space-y-2">
-        {question.quadrants.map((q) => {
-          const items = placedIn(q.id);
-          const isHover = hoverZone === q.id;
-          return (
-            <div
-              key={q.id}
-              data-dnd-zone={q.id}
-              className={`rounded-xl border-2 p-2.5 transition ${SECTION_TINT[q.id] ?? 'border-slate-200'} ${
-                isHover ? 'ring-2 ring-emerald-400' : ''
-              }`}
-            >
-              <p className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-slate-600">
-                <span className={`h-2.5 w-2.5 rounded-full ${SECTION_SWATCH[q.id] ?? ''}`} />
-                {tx(q.label)}
-                <span className="ml-1 rounded-full bg-white/70 px-1.5 text-[10px] text-slate-500">{items.length}</span>
-              </p>
-              {items.length === 0 ? (
-                <p className="px-1 py-1 text-xs italic text-slate-500">
-                  {tx({ en: 'Drag food here', bm: 'Seret makanan ke sini' })}
-                </p>
-              ) : (
-                <div className="flex flex-wrap gap-2">
-                  {items.map((f) => <PlacedChip key={f.id} id={f.id} />)}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Tray of unplaced foods */}
       <div
         data-dnd-zone="__tray"
         className={`grid grid-cols-3 gap-2 rounded-xl border-2 border-dashed p-2 transition ${
           hoverZone === '__tray' ? 'border-[#0B2545] bg-[#0B2545]/5' : 'border-slate-200'
         }`}
       >
-        {COLUMN_ORDER.map((catId) => (
-          <div key={catId} className="flex flex-col gap-1.5">
-            <p className="text-center text-[10px] font-bold uppercase tracking-wide text-slate-400">
-              {tx(quadrant(catId)?.label ?? ({ en: '', bm: '' } as never))}
-            </p>
-            {tray.filter((f) => f.category === catId).map((f) => <FoodChip key={f.id} id={f.id} />)}
-          </div>
-        ))}
+        {COLUMN_ORDER.map((catId) => {
+          const q = question.quadrants.find((qq) => qq.id === catId);
+          return (
+            <div key={catId} className="flex flex-col gap-1.5">
+              <p className="text-center text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                {tx(q?.label ?? ({ en: '', bm: '' } as never))}
+              </p>
+              {tray.filter((f) => f.category === catId).map((f) => <FoodChip key={f.id} id={f.id} />)}
+            </div>
+          );
+        })}
       </div>
 
       <SubmitButton

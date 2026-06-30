@@ -86,6 +86,7 @@ export interface MediaUploadQuestion extends QuestionBase {
   maxDurationSeconds?: number; // for video questions with a cap (e.g. Q29 = 180s)
   instructions?: Text;
   photoSteps?: Array<{ id: string; label: Text }>; // when set: one photo per step (e.g. Q29 C-A-L-M)
+  requiresDescription?: boolean; // when true: show a free-text box alongside the photo (e.g. Q16)
 }
 
 export interface HazardScene {
@@ -203,7 +204,7 @@ export type ResponseDataByType = {
   video_identify: { text: string };
   video_avoid: { text: string };
   video_identify_and_avoid: { text: string };
-  media_upload: { uploadedAt: string; photos?: Array<{ stepId: string; url: string }> };
+  media_upload: { uploadedAt: string; photos?: Array<{ stepId: string; url: string }>; description?: string };
   hazard_canvas: { taps?: Array<{ x: number; y: number }>; scenes?: Array<{ sceneIndex: number; taps: Array<{ x: number; y: number }> }> };
   drag_sequence: { order: string[] };
   drag_matrix: { matches: Record<string, string> }; // leftId -> rightId

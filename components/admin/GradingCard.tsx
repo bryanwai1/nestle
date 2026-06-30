@@ -88,7 +88,7 @@ function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
   switch (submission.response_type) {
     case 'media_upload': {
       // Multi-photo submissions (e.g. Q29 C-A-L-M): one labelled photo per step.
-      const data = (submission.response_data ?? {}) as { photos?: Array<{ stepId: string; url: string }> };
+      const data = (submission.response_data ?? {}) as { photos?: Array<{ stepId: string; url: string }>; description?: string };
       if (Array.isArray(data.photos) && data.photos.length > 0) {
         return (
           <div className="grid grid-cols-2 gap-2">
@@ -105,15 +105,22 @@ function SubmissionPreview({ submission }: { submission: QueuedSubmission }) {
         );
       }
       // Original single photo / video.
-      return submission.media_url ? (
-        submission.media_url.match(/\.(mp4|mov|webm)$/i) ? (
-          <video src={submission.media_url} controls className="w-full rounded-lg bg-slate-900" />
-        ) : (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={submission.media_url} alt="Submission" className="w-full rounded-lg" />
-        )
-      ) : (
-        <p className="text-xs text-slate-400">No media URL recorded.</p>
+      return (
+        <div className="space-y-2">
+          {submission.media_url ? (
+            submission.media_url.match(/\.(mp4|mov|webm)$/i) ? (
+              <video src={submission.media_url} controls className="w-full rounded-lg bg-slate-900" />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={submission.media_url} alt="Submission" className="w-full rounded-lg" />
+            )
+          ) : (
+            <p className="text-xs text-slate-400">No media URL recorded.</p>
+          )}
+          {data.description && (
+            <p className="rounded-lg bg-slate-50 p-2 text-xs italic text-slate-700">&ldquo;{data.description}&rdquo;</p>
+          )}
+        </div>
       );
     }
 

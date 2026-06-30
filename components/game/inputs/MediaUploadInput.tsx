@@ -175,6 +175,7 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   const { t, tx } = useLanguage();
   const [file, setFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [description, setDescription] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cameraOn, setCameraOn] = useState(false);
@@ -313,6 +314,10 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   }
   async function handleSubmit() {
     if (!file) return;
+    if (question.requiresDescription && !description.trim()) {
+      setError(tx({ en: 'Please describe the hazard in one sentence.', bm: 'Sila terangkan bahaya itu dalam satu ayat.' }));
+      return;
+    }
     setUploading(true);
     setError(null);
     try {
@@ -325,7 +330,10 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
       });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from(BUCKET).getPublicUrl(path);
-      onAnswer({ uploadedAt: new Date().toISOString() }, pub.publicUrl);
+      onAnswer(
+        { uploadedAt: new Date().toISOString(), description: question.requiresDescription ? description.trim() : undefined },
+        pub.publicUrl
+      );
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed — check your connection and try again.');
     } finally {
@@ -337,6 +345,18 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   return (
     <div>
       {question.instructions && <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>}
+      {question.requiresDescription && (
+        <div className="mb-4">
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            disabled={uploading}
+            placeholder={tx({ en: 'Describe the hazard in one sentence...', bm: 'Terangkan bahaya itu dalam satu ayat...' })}
+            rows={2}
+            className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm outline-none focus:border-[#0B2545]"
+          />
+        </div>
+      )}
       {file ? (
         <div className="space-y-3">
           {isPhoto ? (

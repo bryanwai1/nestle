@@ -93,7 +93,7 @@ function MultiPhotoUpload({ question, teamId, disabled, onAnswer }: Props) {
   }
   return (
     <div>
-      <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>
+      {question.instructions && <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>}
       <div className="space-y-3">
         {steps.map((s, i) => {
           const preview = previews[s.id];
@@ -336,7 +336,7 @@ function SingleMediaUpload({ question, teamId, disabled, onAnswer }: Props) {
   const ss = String(elapsed % 60).padStart(2, '0');
   return (
     <div>
-      <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>
+      {question.instructions && <p className="mb-4 text-sm text-slate-500">{tx(question.instructions)}</p>}
       {file ? (
         <div className="space-y-3">
           {isPhoto ? (

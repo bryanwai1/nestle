@@ -212,8 +212,8 @@ q6: {
   q17: {
     id: 'q17', moduleId: 'module-2-stf', order: 17, responseType: 'hazard_canvas',
     prompt: bi(
-      'Tap every hazard you can find in each photo. Go through all 3 scenes.',
-      'Ketik setiap bahaya yang anda jumpa dalam setiap gambar. Lalui kesemua 3 senario.'
+      'Tap every hazard you can find in each photo. Go through all 3 scenes. Each photo has 7 hazards, max 7 taps. If you tap the wrong spot, one point will be deducted.',
+      'Ketik setiap bahaya yang anda jumpa dalam setiap gambar. Lalui kesemua 3 senario. Setiap gambar mempunyai 7 bahaya, maksimum 7 ketikan. Jika anda ketik tempat yang salah, satu mata akan ditolak.'
     ),
     imageUrl: '/hazards/warehouse-forklift.jpg',
     targetHazardCount: 7,
@@ -276,9 +276,9 @@ q6: {
     ),
     steps: [
       { id: 'clear_aisles', label: bi('Clear the aisle / remove block stacking along the aisle', 'Bersihkan laluan / alihkan susunan kotak di sepanjang laluan'), imageUrl: '/q18/aisle.jpg' },
-      { id: 'inspect_ladder', label: bi('Check the ladder is in good condition', 'Periksa keadaan tangga'), imageUrl: '/q18/ladder.jpg' },
+      { id: 'inspect_ladder', label: bi('Use only a good condition ladder', 'Gunakan tangga yang dalam keadaan baik sahaja'), imageUrl: '/q18/ladder.jpg' },
       { id: 'hold_ladder', label: bi('Have someone hold the ladder', 'Minta seseorang pegang tangga'), imageUrl: '/q18/hold.jpg' },
-      { id: 'confirm_floor', label: bi('Ensure the aisle is clear and clean', 'Pastikan laluan bersih dan kemas'), imageUrl: '/q18/floor.jpg' },
+      { id: 'confirm_floor', label: bi('Unload the product safely', 'Turunkan produk dengan selamat'), imageUrl: '/q18/floor.jpg' },
     ],
     correctOrder: ['clear_aisles', 'inspect_ladder', 'hold_ladder', 'confirm_floor'],
     requiresManualReview: false, maxPoints: 10,
@@ -372,20 +372,12 @@ q6: {
   q22: {
     id: 'q22', moduleId: 'module-5-ergonomics', order: 22, responseType: 'media_upload',
     prompt: bi('Record a team member lifting a heavy box the safe way.', 'Rakam seorang ahli pasukan mengangkat kotak berat dengan cara yang selamat.'),
-    instructions: bi(
-      'Use your legs, not your back. Feet shoulder-width apart, knees bent, box close to your body.',
-      'Gunakan kaki, bukan belakang. Kaki selebar bahu, lutut dibengkokkan, kotak dekat dengan badan.'
-    ),
     mediaKind: 'video',
     requiresManualReview: true, maxPoints: 10,
   },
   q23: {
     id: 'q23', moduleId: 'module-5-ergonomics', order: 23, responseType: 'media_upload',
     prompt: bi('Take a photo of the correct sitting position at a desk.', 'Ambil gambar kedudukan duduk yang betul di meja kerja.'),
-    instructions: bi(
-      'Back straight and supported, screen at eye level, elbows at about 90°, feet flat on the floor.',
-      'Belakang lurus dan disokong, skrin pada paras mata, siku pada sudut lebih kurang 90°, kaki rata di lantai.'
-    ),
     mediaKind: 'photo',
     requiresManualReview: true, maxPoints: 10,
   },
@@ -394,14 +386,12 @@ q6: {
   q24: {
     id: 'q24', moduleId: 'module-6-exercise', order: 24, responseType: 'media_upload',
     prompt: bi('Record a 10-second video of a correct squat.', 'Rakam video 10 saat menunjukkan squat yang betul.'),
-    instructions: bi('Feet shoulder-width apart, chest up, knees in line with your toes.', 'Kaki selebar bahu, dada ke atas, lutut sejajar dengan jari kaki.'),
     mediaKind: 'video', maxDurationSeconds: 10,
     requiresManualReview: true, maxPoints: 10,
   },
   q25: {
     id: 'q25', moduleId: 'module-6-exercise', order: 25, responseType: 'media_upload',
     prompt: bi('Upload a photo of the correct push-up position.', 'Muat naik gambar kedudukan push-up yang betul.'),
-    instructions: bi('Straight line from head to heels, hands under your shoulders.', 'Garisan lurus dari kepala ke tumit, tangan di bawah bahu.'),
     mediaKind: 'photo',
     requiresManualReview: true, maxPoints: 10,
   },
@@ -439,8 +429,8 @@ q6: {
   q28: {
     id: 'q28', moduleId: 'module-7-balanced-diet', order: 28, responseType: 'budget_canvas',
     prompt: bi(
-      'Build a healthy plate using Suku-Suku Separuh (½ vegetables & fruit, ¼ protein, ¼ carbs) within the budget of RM12.',
-      'Bina pinggan sihat menggunakan Suku-Suku Separuh (½ sayur & buah, ¼ protein, ¼ karbohidrat) dalam bajet RM12.'
+      'Build a healthy plate using Suku-Suku Separuh within the budget of RM12.',
+      'Bina pinggan sihat menggunakan Suku-Suku Separuh dalam bajet RM12.'
     ),
     budgetLimitRM: 12,
     quadrants: [
@@ -481,16 +471,12 @@ q6: {
       'A teammate suddenly has chest pain, trouble breathing, sweating and feels dizzy. Show what to do using C-A-L-M.',
       'Seorang rakan sepasukan tiba-tiba mengalami sakit dada, sukar bernafas, berpeluh dan pening. Tunjukkan apa yang perlu dilakukan menggunakan C-A-L-M.'
     ),
-    instructions: bi(
-      'C \u2013 Call for help. A \u2013 Assist (help them sit down). L \u2013 Look (watch their condition). M \u2013 Move to CPR if they collapse.',
-      'C \u2013 Call (hubungi bantuan). A \u2013 Assist (bantu dia duduk). L \u2013 Look (perhatikan keadaannya). M \u2013 Move (mula CPR jika dia rebah).'
-    ),
     mediaKind: 'photo',
     photoSteps: [
-      { id: 'call',   label: bi('C – Call for help', 'C – Hubungi bantuan') },
-      { id: 'assist', label: bi('A – Assist (help them sit down)', 'A – Bantu dia duduk') },
-      { id: 'look',   label: bi('L – Look (watch their condition)', 'L – Perhatikan keadaannya') },
-      { id: 'move',   label: bi('M – Move to CPR if they collapse', 'M – Mula CPR jika dia rebah') },
+      { id: 'call',   label: bi('Step 1', 'Langkah 1') },
+      { id: 'assist', label: bi('Step 2', 'Langkah 2') },
+      { id: 'look',   label: bi('Step 3', 'Langkah 3') },
+      { id: 'move',   label: bi('Step 4', 'Langkah 4') },
     ],
     requiresManualReview: true, maxPoints: 10,
   },

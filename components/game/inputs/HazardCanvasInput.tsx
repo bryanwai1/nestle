@@ -32,18 +32,11 @@ export function HazardCanvasInput({
 
   function handleTap(e: React.MouseEvent<HTMLDivElement>) {
     if (disabled || !imgRef.current || submitted[sceneIndex]) return;
+    if (currentTaps.length >= 7) return;
     const rect = imgRef.current.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     setSceneTaps(prev => prev.map((t, i) => i === sceneIndex ? [...t, { x, y }] : t));
-  }
-
-  function undoLast() {
-    setSceneTaps(prev => prev.map((t, i) => i === sceneIndex ? t.slice(0, -1) : t));
-  }
-
-  function clearAll() {
-    setSceneTaps(prev => prev.map((t, i) => i === sceneIndex ? [] : t));
   }
 
   function handleSceneSubmit() {
@@ -109,14 +102,10 @@ export function HazardCanvasInput({
 
       {!submitted[sceneIndex] && (
         <div className="mt-3 flex items-center justify-between">
-          <button type="button" onClick={undoLast} disabled={currentTaps.length === 0 || disabled}
-            className="text-xs font-medium text-slate-500 underline disabled:opacity-40">
-            {t('input.undoLastTap')}
-          </button>
-          <button type="button" onClick={clearAll} disabled={currentTaps.length === 0 || disabled}
-            className="text-xs font-medium text-slate-500 underline disabled:opacity-40">
-            {t('input.clearAll')}
-          </button>
+          <span className="text-xs font-medium text-slate-500">No undo — choose carefully</span>
+          <span className={`text-xs font-semibold ${currentTaps.length >= 7 ? 'text-[#E4002B]' : 'text-slate-500'}`}>
+            {currentTaps.length} / 7 taps used
+          </span>
         </div>
       )}
 

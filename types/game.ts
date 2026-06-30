@@ -84,7 +84,7 @@ export interface MediaUploadQuestion extends QuestionBase {
   responseType: 'media_upload';
   mediaKind: 'photo' | 'video';
   maxDurationSeconds?: number; // for video questions with a cap (e.g. Q29 = 180s)
-  instructions: Text;
+  instructions?: Text;
   photoSteps?: Array<{ id: string; label: Text }>; // when set: one photo per step (e.g. Q29 C-A-L-M)
 }
 

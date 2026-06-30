@@ -33,7 +33,7 @@ export const UI_STRINGS = {
 
   // Team setup
   'team.setupTitle': { en: 'Set Up Your Team', bm: 'Sediakan Pasukan Anda' },
-  'team.setupSubtitle': { en: 'Every team has exactly 3 members.', bm: 'Setiap pasukan ada 3 ahli.' },
+  'team.setupSubtitle': { en: 'Every team has 3 to 4 members.', bm: 'Setiap pasukan ada 3 hingga 4 ahli.' },
   'team.createNew': { en: 'Create New Team', bm: 'Cipta Pasukan Baharu' },
   'team.joinExisting': { en: 'Join Existing Team', bm: 'Sertai Pasukan Sedia Ada' },
   'team.autoNumberNote': {

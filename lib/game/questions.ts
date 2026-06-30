@@ -124,7 +124,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
       { id: 'c_stretching',  text: bi('Pull over in a safe place and do some stretching', 'Berhenti di tempat yang selamat dan lakukan regangan') },    ],
     trapChoices: [
       { id: 't_radio',       text: bi('Lowering the temperature of the aircond', 'Merendahkan suhu penyaman udara') },
-      { id: 't_window',      text: bi('Lean back the seat to get more comfortable', 'Sandarkan tempat duduk ke belakang untuk lebih selesa') },
+      { id: 't_lean_back',   text: bi('Lean back the seat to get more comfortable', 'Sandarkan tempat duduk ke belakang untuk lebih selesa') },
       { id: 't_slow',        text: bi('Eat a heavy and oily meal', 'Makan makanan yang berat dan berminyak') },
     ],
     requiresManualReview: false, maxPoints: 10,

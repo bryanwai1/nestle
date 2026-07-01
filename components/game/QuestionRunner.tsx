@@ -99,6 +99,11 @@ export function QuestionRunner({ moduleId, team }: { moduleId: string; team: Tea
 
       const firstUnanswered = questions.findIndex((q) => !answered.has(q.id));
       if (firstUnanswered === -1) {
+        // All questions answered but module not marked complete in DB — fix it now
+        await supabase.from("team_module_progress").upsert(
+          { team_id: team.id, module_id: moduleId, status: "completed", completed_at: new Date().toISOString() },
+          { onConflict: "team_id,module_id" }
+        );
         setCompleted(true);
       } else {
         setIndex(firstUnanswered);

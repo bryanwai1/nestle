@@ -5,9 +5,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { MODULES, getQuestionsForModule } from '@/lib/game/questions';
 
-const MANUAL_REVIEW_MODULES = MODULES.filter((m) =>
-  getQuestionsForModule(m.id).some((q) => q.responseType === 'media_upload')
-).map((m) => m.id);
+const MANUAL_REVIEW_MODULES = MODULES.map((m) => m.id); // All modules require release
 
 type PausedTeam = { team_id: string; team_number: number; module_id: string; completed_at: string };
 

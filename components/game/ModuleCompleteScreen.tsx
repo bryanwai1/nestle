@@ -28,7 +28,7 @@ export function ModuleCompleteScreen({
 
   // Does this module contain any media_upload questions?
   const questions = getQuestionsForModule(moduleId);
-  const hasManualReview = questions.some((q) => q.responseType === 'media_upload');
+  const hasManualReview = true; // All modules require admin release before proceeding
 
   useEffect(() => {
     const supabase = createClient();

@@ -24,6 +24,7 @@ export default function AdminDashboardPage() {
   const navLinks = [
     { href: '/admin/preview', label: '👁 Preview questions' },
     { href: '/admin/teams', label: '📊 Live team tracker' },
+    { href: '/admin/teams-edit', label: '✏️ Edit team members' },
     { href: '/admin/report', label: '⬇ Download report' },
     { href: '/admin/answer-keys', label: '🔑 Answer keys' },
     { href: '/admin/mental-health', label: '💙 Wellbeing (manager)' },

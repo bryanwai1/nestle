@@ -34,7 +34,7 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
         .from('team_releases')
         .select('id')
         .eq('team_id', team!.id)
-        .eq('module_id', prevModule.id)
+        .eq('module_id', prevModule!.id)
         .maybeSingle();
       setPrevReleased(!!data);
     }

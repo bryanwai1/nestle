@@ -11,6 +11,7 @@ import { TeamAnswersBoard } from '@/components/admin/TeamAnswersBoard';
 import { FreezeToggle } from '@/components/admin/FreezeToggle';
 import { SessionControl } from '@/components/admin/SessionControl';
 import { TeamReleasePanel } from '@/components/admin/TeamReleasePanel';
+import { TeamTimersPanel } from '@/components/admin/TeamTimersPanel';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -82,6 +83,7 @@ export default function AdminDashboardPage() {
             <LiveLeaderboardTicker />
           </div>
           <div className="space-y-4">
+            <TeamTimersPanel />
             <SessionControl />
             <FreezeToggle />
             <TeamReleasePanel />

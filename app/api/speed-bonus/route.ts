@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   const { data, error } = await admin
     .from('session_speed_bonus')
-    .insert({ team_id: teamId, module_id: moduleId, points: 50, awarded_by: user.id })
+    .insert({ team_id: teamId, module_id: moduleId, points: 10, awarded_by: user.id })
     .select()
     .single();
 

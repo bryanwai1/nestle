@@ -136,7 +136,7 @@ export const QUESTIONS: Record<string, GameQuestion> = {
       'Apakah nama peraturan jarak selamat dengan kenderaan di hadapan? Taip jawapan anda.'
     ),
     acceptedKeywords: ['3 second rule', '3-second rule', 'three second rule', 'peraturan 3 saat', '3 saat', 'tiga saat', '3-saat', 'three-second'],
-    requiresManualReview: true, maxPoints: 10,
+    requiresManualReview: false, maxPoints: 10,
   },
   q5: {
     id: 'q5', moduleId: 'module-1-safe-driving', order: 5, responseType: 'math_input',
@@ -156,7 +156,7 @@ q6: {
       'dozing off', 'dozing', 'sleeping', 'asleep', 'fatigue', 'drowsy', 'drowsiness', 'mengantuk', 'tidur', 'keletihan', 'penat',
       'manage fatigue', 'sufficient rest', 'rest', 'well-rested', 'well rested', 'take breaks', 'fatigue management', 'urus keletihan', 'rehat secukupnya', 'berehat', 'cukup rehat'
     ],
-    requiresManualReview: true, maxPoints: 20,
+    requiresManualReview: false, maxPoints: 20,
   },
   q7: {
     id: 'q7', moduleId: 'module-1-safe-driving', order: 7, responseType: 'video_identify',
@@ -166,7 +166,7 @@ q6: {
       'not wearing seatbelt', 'no seatbelt', 'seatbelt', 'seat belt', 'tidak pakai tali pinggang keledar', 'tiada tali pinggang keledar', 'tali pinggang keledar',
       'fasten seatbelt', 'wear seatbelt', 'wear seat belt', 'buckle up', 'put on seatbelt', 'pakai tali pinggang keledar', 'ikat tali pinggang keledar'
     ],
-    requiresManualReview: true, maxPoints: 20,
+    requiresManualReview: false, maxPoints: 20,
   },
   q8: {
     id: 'q8', moduleId: 'module-1-safe-driving', order: 8, responseType: 'video_identify',
@@ -176,7 +176,7 @@ q6: {
       'distracted', 'texting', 'handphone', 'mobile', 'phone', 'not paying attention', 'using phone', 'leka', 'bertelefon', 'guna telefon', 'tidak fokus',
       'not using handphone', 'focus', 'pay attention', 'no handphone', 'not texting', 'put phone away', 'avoid phone', 'jangan guna telefon', 'fokus', 'beri perhatian', 'tumpukan perhatian'
     ],
-    requiresManualReview: true, maxPoints: 20,
+    requiresManualReview: false, maxPoints: 20,
   },
   q9: {
     id: 'q9', moduleId: 'module-1-safe-driving', order: 9, responseType: 'video_identify',
@@ -186,7 +186,7 @@ q6: {
       'rushing', 'reckless driving', 'reckless', 'unsafe driving', 'dangerous', 'speeding', 'tergesa-gesa', 'memandu cuai', 'memandu merbahaya', 'laju',
       'drive safely', 'avoid reckless driving', 'slow down', 'do not rush', "don't rush", 'memandu dengan selamat', 'elak memandu cuai', 'perlahankan'
     ],
-    requiresManualReview: true, maxPoints: 20,
+    requiresManualReview: false, maxPoints: 20,
   },
   q10: {
     id: 'q10', moduleId: 'module-1-safe-driving', order: 10, responseType: 'video_identify',
@@ -196,7 +196,7 @@ q6: {
       'not checking mirror', 'side mirror', 'no signal', 'no indicator', 'blind spot', 'not signaling', 'tidak periksa cermin', 'cermin sisi', 'tiada isyarat', 'bintik buta',
       'scan side mirror', 'give signal', 'give indicator', 'check mirrors', 'use indicator', 'use signal', 'periksa cermin sisi', 'beri isyarat', 'guna lampu isyarat'
     ],
-    requiresManualReview: true, maxPoints: 20,
+    requiresManualReview: false, maxPoints: 20,
   },
   // ===================== MODULE 2 — STF =====================
   q16: {
@@ -208,7 +208,7 @@ q6: {
     ),
     mediaKind: 'photo',
     requiresDescription: true,
-    requiresManualReview: true, maxPoints: 10,
+    requiresManualReview: false, maxPoints: 10,
   },
   q17: {
     id: 'q17', moduleId: 'module-2-stf', order: 17, responseType: 'hazard_canvas',
@@ -350,7 +350,7 @@ q6: {
       { id: 'a4', text: bi('Angiogram (Coronary Angiogram)', 'Angiogram (Coronary Angiogram)') },
     ],
     minCorrectRequired: 4, freeText: true,
-    requiresManualReview: true, maxPoints: 10,
+    requiresManualReview: false, maxPoints: 10,
   },
   q33: {
     id: 'q33', moduleId: 'module-3-heart-health', order: 33, responseType: 'drag_sequence',
@@ -462,7 +462,7 @@ q6: {
       { id: 'f17', label: bi('Chapati', 'Capati'),                 category: 'carb',      costRM: 1.5, calories: 120, imageUrl: '/food/chapati.png' },
       { id: 'f18', label: bi('Oats', 'Oat'),                       category: 'carb',      costRM: 1.5, calories: 150, imageUrl: '/food/oats.png' },
     ],
-    requiresManualReview: true, maxPoints: 10,
+    requiresManualReview: false, maxPoints: 10,
   },
 
   // ===================== MODULE 8 — MEDICAL EMERGENCY =====================
@@ -507,7 +507,7 @@ q6: {
       { id: 'p7', text: bi('Other (O)', 'Lain-lain (O)') },
     ],
     minCorrectRequired: 7, freeText: true,
-    requiresManualReview: true, maxPoints: 10,
+    requiresManualReview: false, maxPoints: 10,
   },
   q32: {
     id: 'q32', moduleId: 'module-10-plastic-recycling', order: 32, responseType: 'classification_matrix',

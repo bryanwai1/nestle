@@ -7,7 +7,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTeam } from '@/lib/hooks/useTeam';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
-import { getModule } from '@/lib/game/questions';
+import { getModule, MODULES } from '@/lib/game/questions';
+import { useModuleProgress } from '@/lib/hooks/useModuleProgress';
 import { QuestionRunner } from '@/components/game/QuestionRunner';
 import { QRPrivacyFlow } from '@/components/game/QRPrivacyFlow';
 import { FreezeOverlay } from '@/components/game/FreezeOverlay';
@@ -17,6 +18,10 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
   const { team, loading } = useTeam();
   const router = useRouter();
   const gameModule = getModule(moduleId);
+  const progress = useModuleProgress(team?.id);
+  const moduleIndex = MODULES.findIndex(m => m.id === moduleId);
+  const prevModule = moduleIndex > 0 ? MODULES[moduleIndex - 1] : null;
+  const isLocked = prevModule !== null && (progress[prevModule.id] ?? 'not_started') !== 'completed';
   const { t } = useLanguage();
 
   useEffect(() => {

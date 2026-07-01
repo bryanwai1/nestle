@@ -9,6 +9,7 @@ import { SpeedBonusToggle } from '@/components/admin/SpeedBonusToggle';
 import { MentalHealthAggregateCard } from '@/components/admin/MentalHealthAggregateCard';
 import { TeamAnswersBoard } from '@/components/admin/TeamAnswersBoard';
 import { FreezeToggle } from '@/components/admin/FreezeToggle';
+import { TeamReleasePanel } from '@/components/admin/TeamReleasePanel';
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -78,6 +79,7 @@ export default function AdminDashboardPage() {
           </div>
           <div className="space-y-4">
             <FreezeToggle />
+            <TeamReleasePanel />
             <SpeedBonusToggle />
             <MentalHealthAggregateCard />
           </div>

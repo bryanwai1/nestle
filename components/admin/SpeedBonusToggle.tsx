@@ -32,12 +32,13 @@ export function SpeedBonusToggle() {
       body: JSON.stringify({ teamId, moduleId }),
     });
     setBusy(false);
-    setMessage(res.ok ? '+50 awarded' : 'Failed — try again');
+    setMessage(res.ok ? '+10 awarded' : 'Failed — try again');
   }
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold text-slate-700">⚡ Session Speed Bonus (+50)</h2>
+      <h2 className="mb-3 text-sm font-semibold text-slate-700">⚡ Speed Bonus (+10) — Auto-awarded</h2>
+      <p className="mb-2 text-xs text-slate-400">Awarded automatically to first completer. Use below to manually override.</p>
       <div className="space-y-2">
         <select
           value={moduleId}
@@ -68,7 +69,7 @@ export function SpeedBonusToggle() {
           disabled={!teamId || busy}
           className="w-full rounded-lg bg-[#E4002B] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[#c4001f] disabled:opacity-50"
         >
-          {busy ? 'Awarding…' : 'Award +50 Bonus'}
+          {busy ? 'Awarding…' : 'Override: Award +10 Bonus'}
         </button>
         {message && <p className="text-center text-xs text-slate-500">{message}</p>}
       </div>

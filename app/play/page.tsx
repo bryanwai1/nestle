@@ -68,28 +68,26 @@ export default function PlayHubPage() {
           </div>
         </div>
 
-        <p className="mb-4 px-1 text-xs text-slate-400">{t('hub.freeChoice')}</p>
+        <p className="mb-4 px-1 text-xs text-slate-400">{t('hub.sequentialNote')}</p>
 
         <div className="space-y-2.5">
-          {MODULES.map((m) => {
+          {MODULES.map((m, idx) => {
             const status = progress[m.id] ?? 'not_started';
             const isMentalHealth = m.id === 'module-4-mental-health';
             const accent = ACCENTS[(m.index - 1) % ACCENTS.length];
-            return (
-              <Link
-                key={m.id}
-                href={`/play/${m.id}`}
-                className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              >
+            const prevModule = MODULES[idx - 1];
+            const isLocked = idx > 0 && (progress[prevModule.id] ?? 'not_started') !== 'completed';
+            const inner = (
+              <>
                 <div className="flex items-center gap-3.5">
                   <span
                     className="flex h-11 w-11 flex-none items-center justify-center rounded-2xl text-base font-black text-white shadow-sm"
-                    style={{ backgroundColor: accent, boxShadow: `0 6px 16px ${accent}33` }}
+                    style={{ backgroundColor: isLocked ? '#94a3b8' : accent, boxShadow: `0 6px 16px ${isLocked ? '#94a3b8' : accent}33` }}
                   >
-                    {m.index}
+                    {isLocked ? '🔒' : m.index}
                   </span>
                   <div>
-                    <p className="text-sm font-bold text-[#0B2545]">{tx(m.title)}</p>
+                    <p className={`text-sm font-bold ${isLocked ? 'text-slate-400' : 'text-[#0B2545]'}`}>{tx(m.title)}</p>
                     <p className="text-xs text-slate-400">
                       {isMentalHealth ? t('hub.anonymousCheckIn') : `${m.questionIds.length} ${t('hub.questionsCount')}`} ·{' '}
                       {Math.round((m.timerSeconds ?? 0) / 60)} {t('common.minutes')}
@@ -98,15 +96,33 @@ export default function PlayHubPage() {
                 </div>
                 <span
                   className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                    status === 'completed'
+                    isLocked
+                      ? 'bg-slate-100 text-slate-400'
+                      : status === 'completed'
                       ? 'bg-emerald-50 text-emerald-600'
                       : status === 'in_progress'
                       ? 'bg-amber-50 text-amber-600'
                       : 'bg-slate-100 text-slate-500'
                   }`}
                 >
-                  {t(STATUS_KEY[status])}
+                  {isLocked ? t('hub.status.locked') : t(STATUS_KEY[status])}
                 </span>
+              </>
+            );
+            if (isLocked) {
+              return (
+                <div key={m.id} className="flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 px-4 py-4 opacity-60">
+                  {inner}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={m.id}
+                href={`/play/${m.id}`}
+                className="group flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              >
+                {inner}
               </Link>
             );
           })}

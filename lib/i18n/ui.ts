@@ -65,10 +65,12 @@ export const UI_STRINGS = {
   // Module hub
   'hub.chooseModule': { en: 'Choose a module', bm: 'Pilih satu modul' },
   'hub.status.notStarted': { en: 'Not started', bm: 'Belum Mula' },
+  'hub.status.locked': { en: 'Locked', bm: 'Dikunci' },
   'hub.status.inProgress': { en: 'In progress', bm: 'Sedang Berjalan' },
   'hub.status.completed': { en: 'Completed', bm: 'Selesai' },
   'hub.anonymousCheckIn': { en: 'Anonymous check-in', bm: 'Soal Selidik Tanpa Nama' },
   'hub.questionsCount': { en: 'questions', bm: 'soalan' },
+  'hub.sequentialNote': { en: 'Complete each module in order to unlock the next.', bm: 'Selesaikan setiap modul mengikut urutan untuk membuka yang seterusnya.' },
   'hub.freeChoice': {
     en: 'Pick any module — there\u2019s no fixed order.',
     bm: 'Pilih mana-mana modul — tiada susunan tetap.',

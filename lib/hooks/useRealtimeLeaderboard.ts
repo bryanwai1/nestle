@@ -21,7 +21,7 @@ export function useRealtimeLeaderboard(limit?: number) {
         .from("teams")
         .select("*")
         .order("current_total_score", { ascending: false });
-      if (sessionId) query = query.eq("session_id", sessionId);
+      if (sessionId) query = query.or(`session_id.eq.${sessionId},session_id.is.null`);
       if (limit) query = query.limit(limit);
       const { data } = await query;
       if (!cancelled && data) setTeams(data);

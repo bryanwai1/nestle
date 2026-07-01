@@ -133,7 +133,6 @@ function AssessmentForm() {
 
     const supabase = createClient();
     await supabase.from('mental_health_checkins').insert({
-      team_id: teamId,
       first_name: finalName,
       last_name: null,
       batch_session_id: batch,

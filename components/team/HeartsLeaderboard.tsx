@@ -279,7 +279,7 @@ export function HeartsLeaderboard({ teams, loading }: { teams: LiveTeam[]; loadi
         const heartsAreaW = W - heartsStartX - RIGHTPAD;
         const maxHF = Math.max(1, ...list.map((s) => s.disp / PTS_PER_HEART));
         let heartUnit = heartsAreaW / (maxHF * 1.12);
-        heartUnit = Math.max(13, Math.min(heartUnit, laneH * 0.6, 48));
+        heartUnit = Math.max(8, Math.min(heartUnit, laneH * 0.6, 36));
 
         // leader change celebration
         const leader = ranked[0];

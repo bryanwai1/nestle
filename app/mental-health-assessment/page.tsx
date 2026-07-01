@@ -106,11 +106,11 @@ function AssessmentForm() {
       const supabase = createClient();
       const { data } = await supabase
         .from('teams')
-        .select('member_1_name, member_2_name, member_3_name')
+        .select('member_1_name, member_2_name, member_3_name, member_4_name')
         .eq('id', teamId)
-        .single();
+        .single() as any;
       if (active && data) {
-        setNames([data.member_1_name, data.member_2_name, data.member_3_name].filter(Boolean));
+        setNames([data.member_1_name, data.member_2_name, data.member_3_name, data.member_4_name].filter(Boolean));
       }
     })();
     return () => { active = false; };

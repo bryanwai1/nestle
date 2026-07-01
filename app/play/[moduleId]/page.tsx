@@ -33,7 +33,7 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
       const { data } = await (supabase as any)
         .from('team_releases')
         .select('id')
-        .eq('team_id', team.id)
+        .eq('team_id', team!.id)
         .eq('module_id', prevModule.id)
         .maybeSingle();
       setPrevReleased(!!data);

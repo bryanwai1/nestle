@@ -15,10 +15,13 @@ export function useRealtimeLeaderboard(limit?: number) {
     let cancelled = false;
 
     async function load() {
-      let query = supabase
+      const { data: session } = await (supabase as any).from("event_sessions").select("id").eq("is_active", true).single();
+      const sessionId = session?.id;
+      let query = (supabase as any)
         .from("teams")
         .select("*")
         .order("current_total_score", { ascending: false });
+      if (sessionId) query = query.eq("session_id", sessionId);
       if (limit) query = query.limit(limit);
       const { data } = await query;
       if (!cancelled && data) setTeams(data);

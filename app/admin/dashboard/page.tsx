@@ -9,6 +9,7 @@ import { SpeedBonusToggle } from '@/components/admin/SpeedBonusToggle';
 import { MentalHealthAggregateCard } from '@/components/admin/MentalHealthAggregateCard';
 import { TeamAnswersBoard } from '@/components/admin/TeamAnswersBoard';
 import { FreezeToggle } from '@/components/admin/FreezeToggle';
+import { SessionControl } from '@/components/admin/SessionControl';
 import { TeamReleasePanel } from '@/components/admin/TeamReleasePanel';
 
 export default function AdminDashboardPage() {
@@ -80,6 +81,7 @@ export default function AdminDashboardPage() {
             <LiveLeaderboardTicker />
           </div>
           <div className="space-y-4">
+            <SessionControl />
             <FreezeToggle />
             <TeamReleasePanel />
             <SpeedBonusToggle />

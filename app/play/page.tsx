@@ -10,6 +10,8 @@ import { useModuleProgress } from '@/lib/hooks/useModuleProgress';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { LanguageToggle } from '@/components/LanguageToggle';
 import { MODULES } from '@/lib/game/questions';
+import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 import type { UIKey } from '@/lib/i18n/ui';
 
 const STATUS_KEY: Record<string, UIKey> = {
@@ -24,12 +26,27 @@ const ACCENTS = ['#E4002B', '#F5A623', '#2DD4BF', '#3B82F6', '#8B5CF6', '#EC4899
 export default function PlayHubPage() {
   const { team, loading } = useTeam();
   const progress = useModuleProgress(team?.id);
+  const [releases, setReleases] = useState<Set<string>>(new Set());
+  const supabase = createClient();
   const router = useRouter();
   const { t, tx } = useLanguage();
 
   useEffect(() => {
     if (!loading && !team) router.replace('/');
   }, [loading, team, router]);
+
+  useEffect(() => {
+    if (!team) return;
+    async function loadReleases() {
+      const { data } = await (supabase as any).from('team_releases').select('module_id').eq('team_id', team!.id);
+      if (data) setReleases(new Set(data.map((r: any) => r.module_id)));
+    }
+    loadReleases();
+    const ch = supabase.channel('hub-releases-' + team.id)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'team_releases' }, loadReleases)
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [team?.id]);
 
   if (loading || !team) {
     return (
@@ -76,7 +93,9 @@ export default function PlayHubPage() {
             const isMentalHealth = m.id === 'module-4-mental-health';
             const accent = ACCENTS[(m.index - 1) % ACCENTS.length];
             const prevModule = MODULES[idx - 1];
-            const isLocked = idx > 0 && (progress[prevModule.id] ?? 'not_started') !== 'completed';
+            const prevCompleted = idx > 0 && (progress[prevModule.id] ?? 'not_started') === 'completed';
+            const prevReleased = idx > 0 && releases.has(prevModule.id);
+            const isLocked = idx > 0 && (!prevCompleted || !prevReleased);
             const inner = (
               <>
                 <div className="flex items-center gap-3.5">

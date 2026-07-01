@@ -32,6 +32,7 @@ export function useRealtimeLeaderboard(limit?: number) {
     const channel = supabase
       .channel("leaderboard-teams-" + Math.random().toString(36).slice(2))
       .on("postgres_changes", { event: "*", schema: "public", table: "teams" }, () => load())
+      .on("postgres_changes", { event: "*", schema: "public", table: "event_sessions" }, () => load())
       .subscribe();
 
     return () => {

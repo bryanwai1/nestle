@@ -69,7 +69,7 @@ export function TeamAnswersBoard() {
   const [rows, setRows] = useState<Resp[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<string | null>(null);
-  const [onlyUngraded, setOnlyUngraded] = useState(false);
+  const [onlyUngraded, setOnlyUngraded] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
 
   useEffect(() => {

@@ -9,6 +9,8 @@ import { useTeam } from '@/lib/hooks/useTeam';
 import { useLanguage } from '@/lib/i18n/LanguageContext';
 import { getModule, MODULES } from '@/lib/game/questions';
 import { useModuleProgress } from '@/lib/hooks/useModuleProgress';
+import { createClient } from '@/lib/supabase/client';
+import { useState } from 'react';
 import { QuestionRunner } from '@/components/game/QuestionRunner';
 import { QRPrivacyFlow } from '@/components/game/QRPrivacyFlow';
 import { FreezeOverlay } from '@/components/game/FreezeOverlay';
@@ -19,14 +21,15 @@ export default function ModulePlayPage({ params }: { params: { moduleId: string 
   const router = useRouter();
   const gameModule = getModule(moduleId);
   const progress = useModuleProgress(team?.id);
+  const [released, setReleased] = useState(false);
+  const supabase = createClient();
   const moduleIndex = MODULES.findIndex(m => m.id === moduleId);
   const prevModule = moduleIndex > 0 ? MODULES[moduleIndex - 1] : null;
-  const isLocked = prevModule !== null && (progress[prevModule.id] ?? 'not_started') !== 'completed';
+  const prevCompleted = prevModule !== null && (progress[prevModule.id] ?? 'not_started') === 'completed';
+  const isLocked = prevModule !== null && !prevCompleted;
   const { t } = useLanguage();
 
-  useEffect(() => {
-    if (!loading && !team) router.replace('/');
-  }, [loading, team, router]);
+undefined
 
   if (loading || !team) {
     return <main className="mx-auto max-w-2xl px-4 py-10 text-center text-slate-400">{t('common.loading')}</main>;
